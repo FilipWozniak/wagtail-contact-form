@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags static widget_tweaks %}
+{% block content %}
+<div id="simple_application_form_app" class="container mt-5 mb-5">
+    <div class="row">
+        <h1>{{ page.title }}</h1>
+        <p class="mt-3">
+            {{ self.intro|richtext }}
+        </p>
+        <form action="{% pageurl page %}" method="POST">
+            <div class="progress my-3">
+                <div class="progress-bar" role="progressbar"></div>
+            </div>
+            {% csrf_token %}
+
+
+              <div class="row">
+
+            <div class="col-12 col-sm-6">
+                <div class="form-group mb-3">
+<!--                    <label for="full_name">Full Name</label>-->
+                    {% render_field form.full_name placeholder=form.full_name.label class="form-control" %}
+                    <small class="form-text text-muted">{{ form.full_name.field.help_text }}</small>
+                </div>
+            </div>
+
+
+                       <div class="col-12 col-sm-6">
+                <div class="form-group mb-3">
+<!--                    <label for="e_mail_address">Email Address</label>-->
+                    {% render_field form.e_mail_address placeholder=form.e_mail_address.label class="form-control" %}
+                    <small class="form-text text-muted">{{ form.e_mail_address.field.help_text }}</small>
+                </div>
+            </div>
+
+              </div>
+
+                                  <div class="col">
+                <div class="form-group mb-3">
+<!--                    <label for="message">Message</label>-->
+                    {% render_field form.message placeholder=form.message.label class="form-control" %}
+                    <small class="form-text text-muted">{{ form.message.field.help_text }}</small>
+                </div>
+            </div>
+
+
+{{ form.wagtailcaptcha }}
+
+
+
+            <div class="row mt-5"></div>
+            <div class="d-grid gap-2 col-6 mx-auto">
+
+
+                <button type="submit" class="btn btn-primary">
+                    Submit Form
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
