@@ -8,6 +8,31 @@ A very basic contact form with CAPTCHA module that protects you against spam bas
 
 Installation process is exactly the same as for regular [Django application](https://docs.djangoproject.com/en/3.2/intro/tutorial01/).
 
+If you follow the convention of storing reusable applications in the `apps` folder, please remember to add these three lines to the `manage.py` file.
+
+```python
+from os.path import abspath, dirname, join
+PROJECT_ROOT = abspath(dirname(__file__))
+sys.path.append(join(PROJECT_ROOT, "apps"))
+```
+
+```python
+#!/usr/bin/env python
+import os
+import sys
+
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "landing_page.settings.dev")
+
+    from os.path import abspath, dirname, join
+    PROJECT_ROOT = abspath(dirname(__file__))
+    sys.path.append(join(PROJECT_ROOT, "apps"))
+
+    from django.core.management import execute_from_command_line
+
+    execute_from_command_line(sys.argv)
+```
+
 ### Dependencies
 
 - django-widget-tweaks (https://github.com/jazzband/django-widget-tweaks)
