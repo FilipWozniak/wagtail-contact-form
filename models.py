@@ -1,3 +1,5 @@
+import importlib
+
 from django.db import models
 
 from modelcluster.fields import ParentalKey
@@ -12,6 +14,11 @@ from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
 
 from wagtailcaptcha.models import WagtailCaptchaEmailForm
 
+from packaging import version
+
+import cjkcms
+import wagtail
+
 
 class FormField(AbstractFormField):
     page = ParentalKey(
@@ -22,7 +29,6 @@ class FormField(AbstractFormField):
 
 
 class ContactPage(WagtailCaptchaEmailForm):
-
     template = "contact/contact_page.html"
     # This is the default path.
     # If ignored, Wagtail adds _landing.html to your template name
@@ -43,3 +49,18 @@ class ContactPage(WagtailCaptchaEmailForm):
             FieldPanel("subject"),
         ], heading="Email Settings"),
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super(ContactPage, self).get_context(request, *args, **kwargs)
+        package_name = 'cjkcms'
+
+        package_cjkcms = importlib.util.find_spec(package_name)
+        if package_cjkcms is None:
+            print("Not Installed: " + package_name)
+            context["base_template"] = "base.html"
+        else:
+            if wagtail.VERSION >= (4, 0, 0):
+                context["base_template"] = "cjkcms/pages/web_page.html"
+            else:
+                context["base_template"] = "base.html"
+        return context
