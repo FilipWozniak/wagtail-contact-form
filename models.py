@@ -1,3 +1,4 @@
+import contextlib
 import importlib
 
 from django.db import models
@@ -7,24 +8,25 @@ from wagtail.admin.edit_handlers import (
     FieldPanel,
     FieldRowPanel,
     InlinePanel,
-    MultiFieldPanel
+    MultiFieldPanel,
 )
 from wagtail.core.fields import RichTextField
 from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
 
 from wagtailcaptcha.models import WagtailCaptchaEmailForm
 
-from packaging import version
+# from packaging import version
 
-import cjkcms
+with contextlib.suppress(ModuleNotFoundError):
+    import cjkcms
 import wagtail
 
 
 class FormField(AbstractFormField):
     page = ParentalKey(
-        'ContactPage',
+        "ContactPage",
         on_delete=models.CASCADE,
-        related_name='form_fields',
+        related_name="form_fields",
     )
 
 
@@ -38,21 +40,26 @@ class ContactPage(WagtailCaptchaEmailForm):
     thank_you_text = RichTextField(blank=True)
 
     content_panels = AbstractEmailForm.content_panels + [
-        FieldPanel('intro'),
-        InlinePanel('form_fields', label='Form Fields'),
-        FieldPanel('thank_you_text'),
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel('from_address', classname="col6"),
-                FieldPanel('to_address', classname="col6"),
-            ]),
-            FieldPanel("subject"),
-        ], heading="Email Settings"),
+        FieldPanel("intro"),
+        InlinePanel("form_fields", label="Form Fields"),
+        FieldPanel("thank_you_text"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("from_address", classname="col6"),
+                        FieldPanel("to_address", classname="col6"),
+                    ]
+                ),
+                FieldPanel("subject"),
+            ],
+            heading="Email Settings",
+        ),
     ]
 
     def get_context(self, request, *args, **kwargs):
         context = super(ContactPage, self).get_context(request, *args, **kwargs)
-        package_name = 'cjkcms'
+        package_name = "cjkcms"
 
         package_cjkcms = importlib.util.find_spec(package_name)
         if package_cjkcms is None:
