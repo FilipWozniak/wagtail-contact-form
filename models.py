@@ -1,5 +1,5 @@
 import contextlib
-import importlib
+from importlib import util
 
 from django.db import models
 
@@ -61,13 +61,13 @@ class ContactPage(WagtailCaptchaEmailForm):
         context = super(ContactPage, self).get_context(request, *args, **kwargs)
         package_name = "cjkcms"
 
-        package_cjkcms = importlib.util.find_spec(package_name)
-        if package_cjkcms is None:
-            print("Not Installed: " + package_name)
-            context["base_template"] = "base.html"
+        # pretend the page has a wagtailseo mixin
+        self.seo_pagetitle = self.seo_title
+        self.seo_description = self.search_description
+
+        package_cjkcms = util.find_spec(package_name)
+        if package_cjkcms is not None and wagtail.VERSION[0] >= 4:
+            context["base_template"] = "cjkcms/pages/web_page.html"
         else:
-            if wagtail.VERSION >= (4, 0, 0):
-                context["base_template"] = "cjkcms/pages/web_page.html"
-            else:
-                context["base_template"] = "base.html"
+            context["base_template"] = "base.html"
         return context
