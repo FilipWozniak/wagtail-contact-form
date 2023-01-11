@@ -1,6 +1,8 @@
 import contextlib
 from importlib import util
 
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV3
 from django.db import models
 
 from modelcluster.fields import ParentalKey
@@ -12,6 +14,7 @@ from wagtail.admin.edit_handlers import (
 )
 from wagtail.core.fields import RichTextField
 from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
+from wagtailcaptcha.forms import WagtailCaptchaFormBuilder
 
 from wagtailcaptcha.models import WagtailCaptchaEmailForm
 
@@ -20,6 +23,14 @@ from wagtailcaptcha.models import WagtailCaptchaEmailForm
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
 import wagtail
+
+
+class CustomFormBuilder(WagtailCaptchaFormBuilder):
+    @property
+    def formfields(self):
+        fields = super(WagtailCaptchaFormBuilder, self).formfields
+        fields[self.CAPTCHA_FIELD_NAME] = ReCaptchaField(label="", widget=ReCaptchaV3())
+        return fields
 
 
 class FormField(AbstractFormField):
@@ -35,6 +46,8 @@ class ContactPage(WagtailCaptchaEmailForm):
     # This is the default path.
     # If ignored, Wagtail adds _landing.html to your template name
     landing_page_template = "contact/contact_page_landing.html"
+
+    form_builder = CustomFormBuilder
 
     intro = RichTextField(blank=True)
     thank_you_text = RichTextField(blank=True)
@@ -61,7 +74,7 @@ class ContactPage(WagtailCaptchaEmailForm):
         context = super(ContactPage, self).get_context(request, *args, **kwargs)
         package_name = "cjkcms"
 
-        # pretend the page has a wagtailseo mixin
+        # Pretend the Page Has a `WagtailSEO` Mixin
         self.seo_pagetitle = self.seo_title
         self.seo_description = self.search_description
 
