@@ -61,8 +61,9 @@ if __name__ == "__main__":
 - wagtail-django-recaptcha (https://github.com/springload/wagtail-django-recaptcha)
 ```python
 INSTALLED_APPS = [
-    'captcha',
-    'wagtailcaptcha'
+    "captcha",
+    "wagtailcaptcha",
+    "widget_tweaks"
 ]
 ```
 
