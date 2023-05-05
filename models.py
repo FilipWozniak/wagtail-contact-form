@@ -6,13 +6,13 @@ from captcha.widgets import ReCaptchaV3
 from django.db import models
 
 from modelcluster.fields import ParentalKey
-from wagtail.admin.edit_handlers import (
+from wagtail.admin.panels import (
     FieldPanel,
     FieldRowPanel,
     InlinePanel,
     MultiFieldPanel,
 )
-from wagtail.core.fields import RichTextField
+from wagtail.fields import RichTextField
 from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
 from wagtailcaptcha.forms import WagtailCaptchaFormBuilder
 
