@@ -29,7 +29,3 @@ dependencies = [
     "wagtail-django-recaptcha>=1.0"
 ]
 version="0.0.4"
-
-[tool.setuptools.packages.find]
-include = ["contact_form*"]
-namespaces = false
