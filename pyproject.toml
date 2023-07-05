@@ -7,11 +7,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "contact_form"
-version="0.0.6"
+version = "0.0.7"
 authors = [
     {name = "Filip Woźniak", email = "wozniak.contact@gmail.com"},
 ]
-
 
 requires-python = ">=3.10"
 keywords = ["wagtail", "django"]
@@ -21,12 +20,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Framework :: Django",
 ]
-dependencies = [
-    "Django>=4.1",
-    "Wagtail>=5.0.2",
-    "pytest>=7.0.1",
-    "python_webpack_boilerplate>=0.0.10",
-    "captcha>=0.4",
-    "django-widget-tweaks>=1.4.12",
-    "wagtail-django-recaptcha>=1.0"
-]
+
+[build-system.requires]
+python = ">=3.10"
