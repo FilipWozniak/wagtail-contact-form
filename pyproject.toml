@@ -11,7 +11,7 @@ authors = [
     {name = "Filip Woźniak", email = "wozniak.contact@gmail.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 keywords = ["wagtail", "django"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -28,7 +28,7 @@ dependencies = [
     "django-widget-tweaks>=1.4.12",
     "wagtail-django-recaptcha>=1.0"
 ]
-version="0.0.1"
+version="0.0.2"
 
 [tool.setuptools.packages.find]
 include = ["contact_form*"]
