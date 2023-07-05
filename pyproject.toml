@@ -7,11 +7,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "contact_form"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
     {name = "Filip Woźniak", email = "wozniak.contact@gmail.com"},
 ]
 
+description = "A very basic contact form with CAPTCHA module based on two articles from LearnWagtail website (Contact Forms and Adding Recaptcha to Your Contact Forms)."
 requires-python = ">=3.10"
 keywords = ["wagtail", "django"]
 classifiers = [
@@ -20,6 +21,3 @@ classifiers = [
     "Operating System :: OS Independent",
     "Framework :: Django",
 ]
-
-[build-system.requires]
-python = ">=3.10"

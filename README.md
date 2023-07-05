@@ -85,17 +85,17 @@ URLError at /contact-us/
 
 As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org)" issue on [Stack Overflow](https://stackoverflow.com), all you need to do is go to *Macintosh HD* → *Applications* → *Python* folder and double click on **Install Certificates.command** file.
 
-![URL Error](./README/URL%20Error.png)
+![URL Error](./contact_form/README/URL%20Error.png)
 
 ## Screenshots
 
 #### Contact Form
 
-![Contact Us](./README/Contact%20Us.png)
+![Contact Us](./contact_form/README/Contact%20Us.png)
 
 #### "Thank You" Page
 
-!["Thank You" Page](./README/Thank%20You%20Page.png)
+!["Thank You" Page](./contact_form/README/Thank%20You%20Page.png)
 
 ## Form Fields 
 
