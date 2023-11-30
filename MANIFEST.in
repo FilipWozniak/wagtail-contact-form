@@ -1,2 +1,7 @@
-recursive-include contact_form/templates *
-recursive-include contact_form/static *
+include LICENSE
+include README.md
+include CHANGELOG.md
+recursive-include README *
+recursive-include contact_form *
+global-exclude */__pycache__/*
+global-exclude *.pyc
