@@ -1,0 +1,13 @@
+black
+codespell
+flake8
+mypy
+pytest
+pytest-cov
+pytest-mock
+pytest-django
+pytest-playwright
+freezegun
+twine
+wheel
+django-extensions

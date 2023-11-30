@@ -1,23 +1,43 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["contact_form"]
+
+[tool.setuptools.dynamic]
+version = { attr = "contact_form.__version__" }
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+line_length = 120
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
 
 [project]
 name = "contact_form"
-version = "0.0.9"
-authors = [
-    {name = "Filip Woźniak", email = "wozniak.contact@gmail.com"},
+dynamic = ["version", "dependencies"]
+authors = [{ name = "Filip Woźniak", email = "wozniak.contact@gmail.com" }]
+maintainers = [{ name = "Grzegorz Król", email = "gkrol@cjk.pl" }]
+description = "A very basic contact form with CAPTCHA module based on two articles from LearnWagtail website (Contact Forms and Adding Recaptcha to Your Contact Forms)."
+keywords = ["Wagtail", "Django"]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Framework :: Django",
+  "Framework :: Wagtail",
 ]
 
-description = "A very basic contact form with CAPTCHA module based on two articles from LearnWagtail website (Contact Forms and Adding Recaptcha to Your Contact Forms)."
-requires-python = ">=3.9"
-keywords = ["wagtail", "django"]
-classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-    "Framework :: Django",
-]
+[project.urls]
+"Homepage" = "https://github.com/FilipWozniak/wagtail-contact-form"
+"Bug Tracker" = "https://github.com/FilipWozniak/wagtail-contact-form/issues"

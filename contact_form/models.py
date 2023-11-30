@@ -3,6 +3,9 @@ from importlib import util
 
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV3
+# from django_recaptcha.fields import ReCaptchaField
+# from django_recaptcha.widgets import ReCaptchaV3
+
 from django.db import models
 
 from modelcluster.fields import ParentalKey
@@ -42,10 +45,10 @@ class FormField(AbstractFormField):
 
 
 class ContactPage(WagtailCaptchaEmailForm):
-    template = "contact/contact_page.html"
+    template = "contact_form/contact_page.html"
     # This is the default path.
     # If ignored, Wagtail adds _landing.html to your template name
-    landing_page_template = "contact/contact_page_landing.html"
+    landing_page_template = "contact_form/contact_page_landing.html"
 
     form_builder = CustomFormBuilder
 
