@@ -1,4 +1,4 @@
-# Contact Form
+# Wagtail Contact Form
 
 ## Description
 
@@ -23,28 +23,6 @@ A very basic contact form with `CAPTCHA` module that protects you against spam b
         "contact_form",
     ]
     ```
-
-</details>
-
-<details>
-<summary><h2>Configuration</h2></summary>
-
-1. Register `reCAPTCHA V3` keys in the [reCAPTCHA Admin console](https://www.google.com/recaptcha/admin/create).
-
-    ![Register New Site](contact_form/README/Register%20New%20Site.png)
-
-2. Add the following entries to the `settings.py` file.
-
-    ```python
-    RECAPTCHA_PUBLIC_KEY = ''
-    RECAPTCHA_PRIVATE_KEY = ''
-    
-    RECAPTCHA_REQUIRED_SCORE = 0.85
-    
-    RECAPTCHA_DOMAIN = 'www.recaptcha.net'
-    ```
-
-3. Remember to configure your email settings correctly (this refers to variables such as `EMAIL_BACKEND`, `EMAIL_HOST` etc.), as without these settings `Django` will most likely return `ConnectionRefusedError` while attempting to submit the form.
 
 </details>
 
@@ -82,6 +60,26 @@ If you want install a `Python` application in editable mode, you can use the edi
 
 </details>
 
+<details>
+<summary><h2>Configuration</h2></summary>
+
+1. Register `reCAPTCHA V3` keys in the [reCAPTCHA Admin console](https://www.google.com/recaptcha/admin/create).
+
+    ![Register New Site](contact_form/README/Register%20New%20Site.png)
+
+2. Add the following entries to the `settings.py` file.
+
+    ```python
+    RECAPTCHA_PUBLIC_KEY = ''
+    RECAPTCHA_PRIVATE_KEY = ''
+    
+    RECAPTCHA_REQUIRED_SCORE = 0.85
+    
+    RECAPTCHA_DOMAIN = 'www.recaptcha.net'
+    ```
+
+3. Remember to configure your email settings correctly (this refers to variables such as `EMAIL_BACKEND`, `EMAIL_HOST` etc.), as without these settings `Django` will most likely return `ConnectionRefusedError` while attempting to submit the form.
+
 ### Dependencies
 
 ```python
@@ -92,6 +90,8 @@ INSTALLED_APPS = [
     "widget_tweaks"
 ]
 ```
+
+</details>
 
 <details>
 <summary><h2>Common Issues</h2></summary>
@@ -146,14 +146,14 @@ As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.
 > [!NOTE]
 > Please remember that if you have saved a form with different labels than those mentioned, you must delete the form page and create it again with the correct values.
 
-</details>
-
 ## Custom Form Fields 
 - `Intro Text`
 - `Thank You Text`
 - `E-Mail ("From" Address)`
 - `E-Mail ("To" Address)`
 - `E-Mail Subject`
+
+</details>
 
 ## Authors
 
