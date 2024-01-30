@@ -2,79 +2,99 @@
 
 ## Description
 
-A very basic contact form with CAPTCHA module that protects you against spam based on two articles from LearnWagtail website (["Contact Forms"](https://learnwagtail.com/tutorials/contact-forms) and ["Adding Recaptcha to Your Contact Forms"](https://learnwagtail.com/tutorials/adding-recaptcha-to-your-contact-forms)).
+A very basic contact form with `CAPTCHA` module that protects you against spam based on two articles from LearnWagtail website (["Contact Forms"](https://learnwagtail.com/tutorials/contact-forms) and ["Adding Recaptcha to Your Contact Forms"](https://learnwagtail.com/tutorials/adding-recaptcha-to-your-contact-forms)).
 
-> **Note**
-> As of version `1.0.0` of [`dj-apps-contact_form`](https://github.com/FilipWozniak/dj-apps-contact_form), reCAPTCHA V3 is now supported, while reCAPTCHA V2 is deprecated.
+> [!NOTE]
+> `reCAPTCHA V3` is now supported, while `reCAPTCHA V2` is deprecated.
 
-### Configuration
+<details>
+<summary><h2>Installation</h2></summary>
 
-1. Register reCAPTCHA V3 keys on the [reCAPTCHA Admin console](https://www.google.com/recaptcha/admin/create).
+1. Install the package from `GitHub`.
 
-![img.png](README/Register%20New%20Site.png)
+   ```python
+   pip install git+https://github.com/FilipWozniak/wagtail-contact-form.git
+   ```
+
+2. Add the application to the `INSTALLED_APPS` in the `settings.py` file.
+
+    ```python
+    INSTALLED_APPS = [
+        "contact_form",
+    ]
+    ```
+
+</details>
+
+<details>
+<summary><h2>Configuration</h2></summary>
+
+1. Register `reCAPTCHA V3` keys in the [reCAPTCHA Admin console](https://www.google.com/recaptcha/admin/create).
+
+    ![Register New Site](contact_form/README/Register%20New%20Site.png)
 
 2. Add the following entries to the `settings.py` file.
 
-```python
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
-
-RECAPTCHA_REQUIRED_SCORE = 0.85
-
-RECAPTCHA_DOMAIN = 'www.recaptcha.net'
-```
+    ```python
+    RECAPTCHA_PUBLIC_KEY = ''
+    RECAPTCHA_PRIVATE_KEY = ''
+    
+    RECAPTCHA_REQUIRED_SCORE = 0.85
+    
+    RECAPTCHA_DOMAIN = 'www.recaptcha.net'
+    ```
 
 3. Remember to configure your email settings correctly (this refers to variables such as `EMAIL_BACKEND`, `EMAIL_HOST` etc.), as without these settings `Django` will most likely return `ConnectionRefusedError` while attempting to submit the form.
 
-### Installing
+</details>
 
-Installation process is exactly the same as for regular [Django application](https://docs.djangoproject.com/en/3.2/intro/tutorial01/).
+<details>
+<summary><h2>Installation (Development)</h2></summary>
 
-If you follow the convention of storing reusable applications in the `apps` folder, please remember to add these three lines to the `manage.py` file.
+If you want install a `Python` application in editable mode, you can use the editable mode provided by `pip`.
 
-```python
-from os.path import abspath, dirname, join
-PROJECT_ROOT = abspath(dirname(__file__))
-sys.path.append(join(PROJECT_ROOT, "apps"))
-```
+1. Clone the application's source code:
 
-```python
-#!/usr/bin/env python
-import os
-import sys
+   ```python
+   git clone https://github.com/FilipWozniak/wagtail-contact-form .
+   ```
 
-if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "landing_page.settings.dev")
+2. Navigate to the root directory of the application's source code in the terminal or command prompt.
 
-    from os.path import abspath, dirname, join
-    PROJECT_ROOT = abspath(dirname(__file__))
-    sys.path.append(join(PROJECT_ROOT, "apps"))
+3. Install the application in editable mode.
 
-    from django.core.management import execute_from_command_line
+   Use the pip install command with the `-e` or `--editable` flag followed by a period (`.`) to specify the current
+   directory (where the application's `setup.py` file is located).
 
-    execute_from_command_line(sys.argv)
-```
+   ```python
+   pip install -e .
+   ```
+
+   Replace the `.` with the path to the directory if you're running the command from a different location.
+
+4. Add the application to the `INSTALLED_APPS` in the `settings.py` file.
+
+   ```python
+   INSTALLED_APPS = [
+       "contact_form",
+   ]
+   ```
+
+</details>
 
 ### Dependencies
 
-- django-widget-tweaks (https://github.com/jazzband/django-widget-tweaks)
-- wagtail-django-recaptcha (https://github.com/springload/wagtail-django-recaptcha)
 ```python
 INSTALLED_APPS = [
-    "captcha",
+    "wagtail.contrib.forms",
+    "django_recaptcha",
     "wagtailcaptcha",
     "widget_tweaks"
 ]
 ```
 
-- `wagtail.contrib.forms`
-```python
-INSTALLED_APPS = [
-    'wagtail.contrib.forms'
-]
-```
-
-### Common Issues
+<details>
+<summary><h2>Common Issues</h2></summary>
 
 Note that if you are using MacOS you may stumble across `URLError` while trying to submit the form.
 
@@ -85,26 +105,32 @@ URLError at /contact-us/
 
 As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org)" issue on [Stack Overflow](https://stackoverflow.com), all you need to do is go to *Macintosh HD* → *Applications* → *Python* folder and double click on **Install Certificates.command** file.
 
-![URL Error](./contact_form/README/URL%20Error.png)
+![URL Error](contact_form/README/URL%20Error.png)
 
-## Screenshots
+</details>
+
+<details>
+<summary><h2>Screenshots</h2></summary>
 
 #### Contact Form
 
-![Contact Us](./contact_form/README/Contact%20Us.png)
+![Contact Us](contact_form/README/Contact%20Us.png)
 
 #### "Thank You" Page
 
-!["Thank You" Page](./contact_form/README/Thank%20You%20Page.png)
+!["Thank You" Page](contact_form/README/Thank%20You%20Page.png)
 
-## Form Fields 
+</details>
 
-- Full Name
-- E-Mail Address
-- Message
-- CAPTCHA
+<details>
+<summary><h2>Form Fields</h2></summary>
 
-> **Warning**
+- `Full Name`
+- `E-Mail Address`
+- `Message`
+- `CAPTCHA`
+
+> [!WARNING]
 > As you can see from the code snippet below, form fields are not rendered dynamically, which means you need to name labels identically as mentioned above — `Full Name`, `E-Mail Address`, `Message` (the `CAPTCHA` field is generated automatically, you do not need to define it in the backend).
 
 ```python
@@ -117,15 +143,17 @@ As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.
 </div>
 ```
 
-> **Note**
+> [!NOTE]
 > Please remember that if you have saved a form with different labels than those mentioned, you must delete the form page and create it again with the correct values.
 
+</details>
+
 ## Custom Form Fields 
-- *Intro* Text
-- *Thank You* Text
-- E-Mail ("From" Address)
-- E-Mail ("To" Address)
-- E-Mail Subject
+- `Intro Text`
+- `Thank You Text`
+- `E-Mail ("From" Address)`
+- `E-Mail ("To" Address)`
+- `E-Mail Subject`
 
 ## Authors
 
