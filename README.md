@@ -4,6 +4,8 @@
 
 A very basic contact form with `CAPTCHA` module that protects you against spam based on two articles from LearnWagtail website (["Contact Forms"](https://learnwagtail.com/tutorials/contact-forms) and ["Adding Recaptcha to Your Contact Forms"](https://learnwagtail.com/tutorials/adding-recaptcha-to-your-contact-forms)).
 
+![Contact Us (Illustration)](contact_form/README/Contact%20Us%20(Illustration).svg)
+
 > [!NOTE]
 > `reCAPTCHA V3` is now supported, while `reCAPTCHA V2` is deprecated.
 
@@ -152,6 +154,25 @@ As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.
 - `E-Mail ("From" Address)`
 - `E-Mail ("To" Address)`
 - `E-Mail Subject`
+
+</details>
+
+<details>
+<summary><h2>Testing</h2></summary>
+
+<summary><h4><code>Pytest</code></h4></summary>
+
+```shell
+cd "project"
+pytest -s wagtail_contact_form/contact_form/tests/unit --disable-pytest-warnings
+```
+
+<summary><h4><code>Pytest (testproject)</code></h4></summary>
+
+```shell
+cd "project"
+(cd "wagtail_contact_form/testproject" && DJANGO_SETTINGS_MODULE=testproject.settings pytest ../contact_form/tests/unit --disable-pytest-warnings)
+```
 
 </details>
 
