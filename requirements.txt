@@ -5,4 +5,4 @@ django-widget-tweaks>=1.5.0
 django-recaptcha>=4.0.0
 django_widget_tweaks>=1.5.0
 django_bootstrap5>=23.4
-git+https://github.com/FilipWozniak/wagtail-contact-form.git
+contact_form @ git+https://github.com/FilipWozniak/wagtail-contact-form.git
