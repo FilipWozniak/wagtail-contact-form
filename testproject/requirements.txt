@@ -1,0 +1,6 @@
+Django>=4.2,<4.3
+wagtail>=5.2,<5.3
+django-widget-tweaks>=1.5.0
+django-recaptcha>=4.0.0
+wagtail-django-recaptcha>=2.1.1
+git+https://github.com/FilipWozniak/wagtail-contact-form.git
