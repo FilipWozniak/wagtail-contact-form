@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy
 from wagtail.models import Site
 from wagtail.tests.utils import WagtailPageTests
 from contact_form.models import ContactPage, FormField
+from wagtail.contrib.forms.models import FormSubmission, AbstractFormSubmission
 
 
 @pytest.mark.django_db
@@ -13,6 +14,9 @@ class TestContactPage:
 
     @pytest.fixture
     def contact_page(self):
+        """
+        Fixture to create a ContactPage instance for testing.
+        """
         page = ContactPage(
             title="Contact Us",
             intro="We're here to help and answer any questions you might have. We look forward to hearing from you.",
@@ -27,15 +31,24 @@ class TestContactPage:
         return page
 
     def test_contact_page_url(self, client, contact_page):
+        """
+        Test the URL of the ContactPage to ensure it returns a 200 status code.
+        """
         response = client.get(contact_page.url)
         assert response.status_code == 200
 
     def test_create_contact_page(self, contact_page):
+        """
+        Test the creation of a ContactPage instance and its attributes.
+        """
         assert contact_page.title == "Contact Us"
         assert contact_page.intro == "We're here to help and answer any questions you might have. We look forward to hearing from you."
         assert contact_page.landing_page_template == "contact_form/contact_page_landing.html"
 
     def test_create_form_fields(self, contact_page):
+        """
+        Test the creation of form fields for the ContactPage.
+        """
         # Single Line Text: "singleline"
         # Multi-Line Text: "multiline"
         # Email: "email"
@@ -74,3 +87,33 @@ class TestContactPage:
         assert message_field.label == "Message"
         assert message_field.field_type == "multiline"
         assert message_field.required
+
+    def test_send_form_submission_successfully(self, client, contact_page):
+        """
+        Test the successful submission of a form on the ContactPage.
+        """
+        data = {
+            'full_name': 'John Doe',
+            'email_address': 'john@example.com',
+            'message': 'This is a test message.',
+        }
+        response = client.post(contact_page.url, data)
+        assert response.status_code == 200
+
+    def test_form_submission_database_save(self, contact_page):
+        """
+        Test the saving of form submission data to the database.
+        """
+        form_submission = FormSubmission.objects.create(
+            form_data={
+                'full_name': 'John Doe',
+                'email_address': 'john@example.com',
+                'message': 'This is a test message.',
+            },
+            page=contact_page,
+        )
+        latest_submission = FormSubmission.objects.last()
+        assert latest_submission is not None
+        assert latest_submission.form_data['full_name'] == 'John Doe'
+        assert latest_submission.form_data['email_address'] == 'john@example.com'
+        assert latest_submission.form_data['message'] == 'This is a test message.'
