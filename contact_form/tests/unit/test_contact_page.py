@@ -4,6 +4,7 @@ import unittest
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy
 from wagtail.models import Site
+from wagtail.tests.utils import WagtailPageTests
 from contact_form.models import ContactPage, FormField
 
 
@@ -24,6 +25,10 @@ class TestContactPage:
         home_page.add_child(instance=page)
         page.save()
         return page
+
+    def test_contact_page_url(self, client, contact_page):
+        response = client.get(contact_page.url)
+        assert response.status_code == 200
 
     def test_create_contact_page(self, contact_page):
         assert contact_page.title == "Contact Us"
