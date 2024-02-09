@@ -162,7 +162,7 @@ As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.
 </details>
 
 <details>
-<summary><h2>Testing</h2></summary>
+<summary><h2>Testing & `pre-commit`</h2></summary>
 
 <summary><h4><code>Pytest</code></h4></summary>
 
@@ -176,6 +176,13 @@ pytest -s wagtail_contact_form/contact_form/tests/unit --disable-pytest-warnings
 ```shell
 cd "project"
 (cd "wagtail_contact_form/testproject" && DJANGO_SETTINGS_MODULE=testproject.settings.base pytest -s ../contact_form/tests/unit --disable-pytest-warnings)
+```
+
+## `pre-commit`
+
+```shell
+cd "project"
+(cd "wagtail_contact_form" && pre-commit run --files contact_form/tests/unit/*)
 ```
 
 </details>
