@@ -3,6 +3,7 @@ from importlib import util
 
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV3
+from django.conf import settings
 
 from django.db import models
 
@@ -18,8 +19,6 @@ from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
 from wagtailcaptcha.forms import WagtailCaptchaFormBuilder
 
 from wagtailcaptcha.models import WagtailCaptchaEmailForm
-
-# from packaging import version
 
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
@@ -44,8 +43,7 @@ class FormField(AbstractFormField):
 
 class ContactPage(WagtailCaptchaEmailForm):
     template = "contact_form/contact_page.html"
-    # This is the default path.
-    # If ignored, Wagtail adds _landing.html to your template name
+    # This is the default path. If ignored, Wagtail adds _landing.html to your template name.
     landing_page_template = "contact_form/contact_page_landing.html"
 
     form_builder = CustomFormBuilder
@@ -73,14 +71,11 @@ class ContactPage(WagtailCaptchaEmailForm):
 
     def get_context(self, request, *args, **kwargs):
         context = super(ContactPage, self).get_context(request, *args, **kwargs)
-        package_name = "cjkcms"
-
-        # Pretend the Page Has a `WagtailSEO` Mixin
         self.seo_pagetitle = self.seo_title
         self.seo_description = self.search_description
 
-        package_cjkcms = util.find_spec(package_name)
-        if package_cjkcms is not None and wagtail.VERSION[0] >= 4:
+        package = "cjkcms"
+        if package in settings.INSTALLED_APPS and wagtail.VERSION[0] >= 4:
             context["base_template"] = "cjkcms/pages/web_page.html"
         else:
             context["base_template"] = "base.html"
