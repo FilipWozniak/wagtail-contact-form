@@ -1,3 +1,7 @@
+Django==5.0.2
+wagtail>=5.2.2
+wagtail-django-recaptcha>=2.1.1
 django-widget-tweaks>=1.5.0
 django-recaptcha>=4.0.0
-wagtail-django-recaptcha>=2.1.1
+django_widget_tweaks>=1.5.0
+django_bootstrap5>=23.4
