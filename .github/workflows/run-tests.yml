@@ -31,7 +31,6 @@ jobs:
       - name: Capture Django & Wagtail Versions
         run: |
           echo "Django Version: $(python -m django --version)"
-          echo "Wagtail Version: $(python -m wagtail --version)"
 
       - name: Run Tests
         run: |
