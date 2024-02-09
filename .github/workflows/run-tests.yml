@@ -28,6 +28,11 @@ jobs:
           pip install -r requirements.txt
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Capture Django & Wagtail Versions
+        run: |
+          echo "Django Version: $(python -m django --version)"
+          echo "Wagtail Version: $(python -m wagtail --version)"
+
       - name: Run Tests
         run: |
           (cd "testproject" && DJANGO_SETTINGS_MODULE=testproject.settings.base python -m pytest)
