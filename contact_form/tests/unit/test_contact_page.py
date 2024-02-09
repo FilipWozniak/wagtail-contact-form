@@ -1,17 +1,13 @@
 import pytest
-import unittest
-
-from django.forms import ValidationError
-from django.utils.translation import gettext_lazy
+from wagtail.contrib.forms.models import FormSubmission
 from wagtail.models import Site
-from wagtail.tests.utils import WagtailPageTests
-from contact_form.models import ContactPage, FormField
-from wagtail.contrib.forms.models import FormSubmission, AbstractFormSubmission
+
+from contact_form.models import ContactPage
+from contact_form.models import FormField
 
 
 @pytest.mark.django_db
 class TestContactPage:
-
     @pytest.fixture
     def contact_page(self):
         """
@@ -23,7 +19,7 @@ class TestContactPage:
             thank_you_text="Thank you for your submission!",
             from_address="example@example.com",
             to_address="admin@example.com",
-            subject="Message from the Website (Contact Form)"
+            subject="Message from the Website (Contact Form)",
         )
         home_page = Site.objects.filter(is_default_site=True)[0].root_page
         home_page.add_child(instance=page)
@@ -42,7 +38,10 @@ class TestContactPage:
         Test the creation of a ContactPage instance and its attributes.
         """
         assert contact_page.title == "Contact Us"
-        assert contact_page.intro == "We're here to help and answer any questions you might have. We look forward to hearing from you."
+        assert (
+            contact_page.intro
+            == "We're here to help and answer any questions you might have. We look forward to hearing from you."
+        )
         assert contact_page.landing_page_template == "contact_form/contact_page_landing.html"
 
     def test_create_form_fields(self, contact_page):
@@ -64,10 +63,18 @@ class TestContactPage:
         # Hidden Field: "hidden"
 
         full_name_field = FormField.objects.create(
-            page=contact_page, sort_order=1, label="Full Name", field_type="singleline", required=True
+            page=contact_page,
+            sort_order=1,
+            label="Full Name",
+            field_type="singleline",
+            required=True,
         )
         email_address_field = FormField.objects.create(
-            page=contact_page, sort_order=2, label="Email Address", field_type="email", required=True
+            page=contact_page,
+            sort_order=2,
+            label="Email Address",
+            field_type="email",
+            required=True,
         )
         message_field = FormField.objects.create(
             page=contact_page, sort_order=3, label="Message", field_type="multiline", required=True
@@ -93,9 +100,9 @@ class TestContactPage:
         Test the successful submission of a form on the ContactPage.
         """
         data = {
-            'full_name': 'John Doe',
-            'email_address': 'john@example.com',
-            'message': 'This is a test message.',
+            "full_name": "John Doe",
+            "email_address": "john@example.com",
+            "message": "This is a test message.",
         }
         response = client.post(contact_page.url, data)
         assert response.status_code == 200
@@ -104,16 +111,16 @@ class TestContactPage:
         """
         Test the saving of form submission data to the database.
         """
-        form_submission = FormSubmission.objects.create(
+        FormSubmission.objects.create(
             form_data={
-                'full_name': 'John Doe',
-                'email_address': 'john@example.com',
-                'message': 'This is a test message.',
+                "full_name": "John Doe",
+                "email_address": "john@example.com",
+                "message": "This is a test message.",
             },
             page=contact_page,
         )
         latest_submission = FormSubmission.objects.last()
         assert latest_submission is not None
-        assert latest_submission.form_data['full_name'] == 'John Doe'
-        assert latest_submission.form_data['email_address'] == 'john@example.com'
-        assert latest_submission.form_data['message'] == 'This is a test message.'
+        assert latest_submission.form_data["full_name"] == "John Doe"
+        assert latest_submission.form_data["email_address"] == "john@example.com"
+        assert latest_submission.form_data["message"] == "This is a test message."
