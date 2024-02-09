@@ -6,7 +6,7 @@ A very basic contact form with `CAPTCHA` module that protects you against spam b
 
 <br>
 <p align="center">
-   <img src="contact_form/README/Contact%20Us%20(Illustration).svg" width="30%">
+   <img src="contact_form/README/Contact%20Us%20(Illustration).svg" width="60%">
 </p>
 <br>
 
