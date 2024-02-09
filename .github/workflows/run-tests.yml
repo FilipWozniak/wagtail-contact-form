@@ -30,4 +30,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          python -m pytest
+          DJANGO_SETTINGS_MODULE=testproject.settings.base python -m pytest
