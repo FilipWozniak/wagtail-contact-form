@@ -4,7 +4,11 @@
 
 A very basic contact form with `CAPTCHA` module that protects you against spam based on two articles from LearnWagtail website (["Contact Forms"](https://learnwagtail.com/tutorials/contact-forms) and ["Adding Recaptcha to Your Contact Forms"](https://learnwagtail.com/tutorials/adding-recaptcha-to-your-contact-forms)).
 
-![Contact Us (Illustration)](contact_form/README/Contact%20Us%20(Illustration).svg)
+<br>
+<p align="center">
+   <img src="contact_form/README/Contact%20Us%20(Illustration).svg" width="30%">
+</p>
+<br>
 
 > [!NOTE]
 > `reCAPTCHA V3` is now supported, while `reCAPTCHA V2` is deprecated.
@@ -171,7 +175,7 @@ pytest -s wagtail_contact_form/contact_form/tests/unit --disable-pytest-warnings
 
 ```shell
 cd "project"
-(cd "wagtail_contact_form/testproject" && DJANGO_SETTINGS_MODULE=testproject.settings pytest ../contact_form/tests/unit --disable-pytest-warnings)
+(cd "wagtail_contact_form/testproject" && DJANGO_SETTINGS_MODULE=testproject.settings.base pytest -s ../contact_form/tests/unit --disable-pytest-warnings)
 ```
 
 </details>
