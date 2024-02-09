@@ -30,4 +30,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          (cd "contact_form/testproject" && DJANGO_SETTINGS_MODULE=testproject.settings.base python -m pytest)
+          (cd "testproject" && DJANGO_SETTINGS_MODULE=testproject.settings.base python -m pytest)
