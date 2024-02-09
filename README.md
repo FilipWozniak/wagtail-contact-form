@@ -162,7 +162,7 @@ As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.
 </details>
 
 <details>
-<summary><h2>Testing & `pre-commit`</h2></summary>
+<summary><h2>Testing</h2></summary>
 
 <summary><h4><code>Pytest</code></h4></summary>
 
