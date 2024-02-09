@@ -1,5 +1,5 @@
 Django==4.2.10
-wagtail>=5.2.2
+wagtail>=5.2
 wagtail-django-recaptcha>=2.1.1
 django-widget-tweaks>=1.5.0
 django-recaptcha>=4.0.0
