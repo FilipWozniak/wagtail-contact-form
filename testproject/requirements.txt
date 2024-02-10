@@ -1,2 +1,2 @@
 include ../contact_form/requirements.txt
--e ./../
+git+https://github.com/FilipWozniak/wagtail-contact-form.git

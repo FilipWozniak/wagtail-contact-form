@@ -11,3 +11,4 @@ freezegun
 twine
 wheel
 django-extensions
+-e .
