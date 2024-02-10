@@ -35,6 +35,5 @@ jobs:
       - name: Run Tests
         working-directory: ./testproject
         run: |
-          DJANGO_SETTINGS_MODULE=testproject.settings.base
-          python -m pytest
+          python -m pytest ../contact_form/ --ds=testproject.settings.base
 
