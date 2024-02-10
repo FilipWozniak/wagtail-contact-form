@@ -33,8 +33,8 @@ jobs:
           echo "Django Version: $(python -m django --version)"
 
       - name: Run Tests
+        working-directory: ./testproject
         run: |
-          cd "testproject"
           DJANGO_SETTINGS_MODULE=testproject.settings.base
           python -m pytest
 
