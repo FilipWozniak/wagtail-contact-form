@@ -67,7 +67,10 @@ class TestContactPage:
             contact_page.intro
             == "We're here to help and answer any questions you might have. We look forward to hearing from you."
         )
-        assert contact_page.landing_page_template == "contact_form/contact_page_landing.html"
+        assert (
+            contact_page.landing_page_template
+            == "contact_form/contact_page_landing.html"
+        )
 
     def test_create_form_fields(self, contact_page):
         """
@@ -88,7 +91,11 @@ class TestContactPage:
             required=True,
         )
         message_field = FormField.objects.create(
-            page=contact_page, sort_order=3, label="Message", field_type="multiline", required=True
+            page=contact_page,
+            sort_order=3,
+            label="Message",
+            field_type="multiline",
+            required=True,
         )
 
         assert full_name_field.page == contact_page
@@ -108,7 +115,9 @@ class TestContactPage:
 
         assert contact_page.form_fields.count() == 3
 
-    def test_send_form_submission_successfully(self, client, contact_page, form_submission_data):
+    def test_send_form_submission_successfully(
+        self, client, contact_page, form_submission_data
+    ):
         """
         Test the successful submission of a form on the ContactPage.
         """
@@ -138,7 +147,9 @@ class TestContactPage:
         assert response.status_code == 200
         assert "base.html" in [template.name for template in response.templates]
 
-    def test_form_submission_email_sent(self, client, contact_page, form_submission_data):
+    def test_form_submission_email_sent(
+        self, client, contact_page, form_submission_data
+    ):
         """
         Test that an email is sent when the contact form is successfully submitted.
         """

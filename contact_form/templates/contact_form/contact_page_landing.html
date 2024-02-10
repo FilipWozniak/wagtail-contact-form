@@ -7,10 +7,10 @@
 <div class="container mt-5 mb-5 text-center">
 
     {% if base_template == "cjkcms/pages/web_page.html" %}
-        <div class="pt-5"> </div>
+        <div class="pt-4"> </div>
     {% endif %}
 
-    <a href="{{ page.get_site.root_url }}">
+    <a href="{{ request.site.root_page.url }}">
         <button type="button" class="btn btn-primary btn-lg">Back to Home Page</button>
     </a>
     <div class="row mt-5"></div>

@@ -1,6 +1,25 @@
-# Wagtail Contact Form
+Metadata-Version: 2.1
+Name: wagtail-contact-form
+Version: 24.2.10
+Summary: A very basic contact form with CAPTCHA module based on two articles from LearnWagtail website (Contact Forms and Adding Recaptcha to Your Contact Forms).
+Author-email: Filip Woźniak <wozniak.contact@gmail.com>
+Maintainer-email: Grzegorz Król <gkrol@cjk.pl>
+Project-URL: Homepage, https://github.com/FilipWozniak/wagtail-contact-form
+Project-URL: Bug Tracker, https://github.com/FilipWozniak/wagtail-contact-form/issues
+Keywords: Wagtail,Django
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Framework :: Django
+Classifier: Framework :: Wagtail
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: wagtail>=5.0.2
+Requires-Dist: django-recaptcha>=4.0.0
+Requires-Dist: django-widget-tweaks>=1.5.0
+Requires-Dist: django_bootstrap5>=23.4
 
-For Wagtail 5.x and 6.x
+# Wagtail Contact Form
 
 ## Description
 
@@ -16,7 +35,7 @@ A very basic contact form with `CAPTCHA` module that protects you against spam b
 > `reCAPTCHA V3` is now supported, while `reCAPTCHA V2` is deprecated.
 
 <details>
-<summary><h2>Installation and dependecies</h2></summary>
+<summary><h2>Installation</h2></summary>
 
 1. Install the package from `GitHub`.
 
@@ -24,18 +43,13 @@ A very basic contact form with `CAPTCHA` module that protects you against spam b
    pip install git+https://github.com/FilipWozniak/wagtail-contact-form.git
    ```
 
-2. Add the application and its dependencies to the `INSTALLED_APPS` in your settings file.
+2. Add the application to the `INSTALLED_APPS` in the `settings.py` file.
 
-   ```python
-   INSTALLED_APPS = [
-       "contact_form",
-        ### dependencies:
-        "django_recaptcha",
-        "widget_tweaks"
-   ]
-   ```
-
-   Most systems will already have ```wagtail.contrib.forms``` in INSTALLED_APPS - if not, add it, too.
+    ```python
+    INSTALLED_APPS = [
+        "contact_form",
+    ]
+    ```
 
 </details>
 
@@ -63,18 +77,13 @@ If you want install a `Python` application in editable mode, you can use the edi
 
    Replace the `.` with the path to the directory if you're running the command from a different location.
 
-4. Add the application and its dependencies to the `INSTALLED_APPS` in the `settings.py` file.
+4. Add the application to the `INSTALLED_APPS` in the `settings.py` file.
 
    ```python
    INSTALLED_APPS = [
        "contact_form",
-        ### dependencies:
-        "django_recaptcha",
-        "widget_tweaks"
    ]
    ```
-
-   Most systems will already have ```wagtail.contrib.forms``` in INSTALLED_APPS - if not, add it, too.
 
 </details>
 
@@ -96,9 +105,19 @@ If you want install a `Python` application in editable mode, you can use the edi
     RECAPTCHA_DOMAIN = 'www.recaptcha.net'
     ```
 
-3. Configure your email settings (`EMAIL_BACKEND`, `EMAIL_HOST` etc.), as without these settings `Django` will most likely return `ConnectionRefusedError` while attempting to submit the form.
+3. Remember to configure your email settings correctly (this refers to variables such as `EMAIL_BACKEND`, `EMAIL_HOST` etc.), as without these settings `Django` will most likely return `ConnectionRefusedError` while attempting to submit the form.
 
-4. Create a page of new type: "Contact Page". Add required fields to the contact form (see section "Form Fields" below.)
+### Dependencies
+
+```python
+INSTALLED_APPS = [
+    "wagtail.contrib.forms",
+    "django_recaptcha",
+    "wagtailcaptcha",
+    "widget_tweaks"
+]
+```
+
 </details>
 
 <details>

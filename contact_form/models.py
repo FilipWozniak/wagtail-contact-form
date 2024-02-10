@@ -1,36 +1,22 @@
 import contextlib
-from importlib import util
 
-from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV3
 from django.conf import settings
-
 from django.db import models
-
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import (
-    FieldPanel,
-    FieldRowPanel,
-    InlinePanel,
-    MultiFieldPanel,
-)
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
+from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 from wagtail.fields import RichTextField
-from wagtail.contrib.forms.models import AbstractFormField, AbstractEmailForm
-from wagtailcaptcha.forms import WagtailCaptchaFormBuilder
 
-from wagtailcaptcha.models import WagtailCaptchaEmailForm
+from .forms import ContactFormBuilder, remove_captcha_field
 
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
+
 import wagtail
+from django.conf import settings
+from wagtail.contrib.forms.models import AbstractEmailForm
 
-
-class CustomFormBuilder(WagtailCaptchaFormBuilder):
-    @property
-    def formfields(self):
-        fields = super(WagtailCaptchaFormBuilder, self).formfields
-        fields[self.CAPTCHA_FIELD_NAME] = ReCaptchaField(label="", widget=ReCaptchaV3())
-        return fields
+from .forms import remove_captcha_field
 
 
 class FormField(AbstractFormField):
@@ -41,12 +27,13 @@ class FormField(AbstractFormField):
     )
 
 
-class ContactPage(WagtailCaptchaEmailForm):
+class ContactPage(AbstractEmailForm):
+
     template = "contact_form/contact_page.html"
     # This is the default path. If ignored, Wagtail adds _landing.html to your template name.
-    landing_page_template = "contact_form/contact_page_landing.html"
+    thankyou_page_template = "contact_form/contact_page_thankyou.html"
 
-    form_builder = CustomFormBuilder
+    form_builder = ContactFormBuilder
 
     intro = RichTextField(blank=True)
     thank_you_text = RichTextField(blank=True)
@@ -68,6 +55,10 @@ class ContactPage(WagtailCaptchaEmailForm):
             heading="Email Settings",
         ),
     ]
+
+    def process_form_submission(self, form):
+        remove_captcha_field(form)
+        return super(ContactPage, self).process_form_submission(form)
 
     def get_context(self, request, *args, **kwargs):
         context = super(ContactPage, self).get_context(request, *args, **kwargs)

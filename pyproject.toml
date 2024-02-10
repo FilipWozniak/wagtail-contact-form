@@ -22,7 +22,7 @@ ignore_missing_imports = true
 line-length = 120
 
 [project]
-name = "contact_form"
+name = "wagtail-contact-form"
 dynamic = ["version", "dependencies"]
 authors = [{ name = "Filip Woźniak", email = "wozniak.contact@gmail.com" }]
 maintainers = [{ name = "Grzegorz Król", email = "gkrol@cjk.pl" }]
