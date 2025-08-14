@@ -2,7 +2,18 @@ from __future__ import absolute_import, unicode_literals
 
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV3
-from wagtail.contrib.forms.forms import FormBuilder
+import wagtail
+from packaging import version
+
+WAGTAIL_VERSION = version.parse(wagtail.__version__)
+
+if WAGTAIL_VERSION < version.parse("7.0"):
+    from wagtail.contrib.forms.forms import FormBuilder
+else:
+    try:  # Wagtail 7+ path
+        from wagtail.forms.forms import FormBuilder
+    except ModuleNotFoundError:  # Fallback for environments without the new module
+        from wagtail.contrib.forms.forms import FormBuilder
 
 
 class ContactFormBuilder(FormBuilder):
