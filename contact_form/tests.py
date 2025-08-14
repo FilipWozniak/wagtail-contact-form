@@ -2,7 +2,7 @@ import pytest
 from django.test import RequestFactory
 from django.urls import reverse
 from django.core import mail
-from wagtail.models import Page, Site
+from contact_form.compat import Page, Site
 from contact_form.models import ContactPage, FormField
 
 @pytest.fixture

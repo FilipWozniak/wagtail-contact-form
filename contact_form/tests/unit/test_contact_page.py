@@ -1,6 +1,5 @@
 import pytest
-from wagtail.contrib.forms.models import FormSubmission
-from wagtail.models import Site
+from contact_form.compat import FormSubmission, Site
 
 from contact_form.models import ContactPage
 from contact_form.models import FormField

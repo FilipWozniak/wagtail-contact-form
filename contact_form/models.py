@@ -3,20 +3,22 @@ import contextlib
 from django.conf import settings
 from django.db import models
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
-from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
-from wagtail.fields import RichTextField
+from packaging import version
+from .compat import (
+    FieldPanel,
+    FieldRowPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    AbstractEmailForm,
+    AbstractFormField,
+    RichTextField,
+    WAGTAIL_VERSION,
+)
 
 from .forms import ContactFormBuilder, remove_captcha_field
 
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
-
-import wagtail
-from django.conf import settings
-from wagtail.contrib.forms.models import AbstractEmailForm
-
-from .forms import remove_captcha_field
 
 
 class FormField(AbstractFormField):
@@ -43,15 +45,21 @@ class ContactPage(AbstractEmailForm):
         InlinePanel("form_fields", label="Form Fields"),
         FieldPanel("thank_you_text"),
         MultiFieldPanel(
-            [
-                FieldRowPanel(
-                    [
+            (
+                [
+                    FieldRowPanel([
                         FieldPanel("from_address", classname="col6"),
                         FieldPanel("to_address", classname="col6"),
-                    ]
-                ),
-                FieldPanel("subject"),
-            ],
+                    ]),
+                    FieldPanel("subject"),
+                ]
+                if FieldRowPanel is not None
+                else [
+                    FieldPanel("from_address"),
+                    FieldPanel("to_address"),
+                    FieldPanel("subject"),
+                ]
+            ),
             heading="Email Settings",
         ),
     ]
@@ -66,7 +74,7 @@ class ContactPage(AbstractEmailForm):
         self.seo_description = self.search_description
 
         package = "cjkcms"
-        if package in settings.INSTALLED_APPS and wagtail.VERSION[0] >= 4:
+        if package in settings.INSTALLED_APPS and WAGTAIL_VERSION >= version.parse("4.0"):
             context["base_template"] = "cjkcms/pages/web_page.html"
         else:
             context["base_template"] = "base.html"
