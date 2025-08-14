@@ -1,5 +1,17 @@
 import pytest
-from wagtail.contrib.forms.models import FormSubmission
+import wagtail
+from packaging import version
+
+WAGTAIL_VERSION = version.parse(wagtail.__version__)
+
+if WAGTAIL_VERSION < version.parse("7.0"):
+    from wagtail.contrib.forms.models import FormSubmission
+else:
+    try:  # Wagtail 7+ path
+        from wagtail.forms.models import FormSubmission
+    except ModuleNotFoundError:  # Fallback when new module isn't available
+        from wagtail.contrib.forms.models import FormSubmission
+
 from wagtail.models import Site
 
 from contact_form.models import ContactPage

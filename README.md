@@ -1,6 +1,6 @@
 # Wagtail Contact Form
 
-For Wagtail 5.x and 6.x
+For Wagtail 5.x – 7.x
 
 ## Description
 
@@ -35,7 +35,7 @@ A very basic contact form with `CAPTCHA` module that protects you against spam b
    ]
    ```
 
-   Most systems will already have ```wagtail.contrib.forms``` in INSTALLED_APPS - if not, add it, too.
+   Most systems will already have `wagtail.contrib.forms` (for Wagtail < 7) or `wagtail.forms` (for Wagtail ≥ 7) in `INSTALLED_APPS` - if not, add the appropriate one.
 
 </details>
 
@@ -74,7 +74,7 @@ If you want install a `Python` application in editable mode, you can use the edi
    ]
    ```
 
-   Most systems will already have ```wagtail.contrib.forms``` in INSTALLED_APPS - if not, add it, too.
+   Most systems will already have `wagtail.contrib.forms` (for Wagtail < 7) or `wagtail.forms` (for Wagtail ≥ 7) in `INSTALLED_APPS` - if not, add the appropriate one.
 
 </details>
 

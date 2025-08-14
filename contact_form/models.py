@@ -4,19 +4,24 @@ from django.conf import settings
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
-from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 from wagtail.fields import RichTextField
+import wagtail
+from packaging import version
+
+WAGTAIL_VERSION = version.parse(wagtail.__version__)
+
+if WAGTAIL_VERSION < version.parse("7.0"):
+    from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
+else:
+    try:  # Wagtail 7+ path
+        from wagtail.forms.models import AbstractEmailForm, AbstractFormField
+    except ModuleNotFoundError:  # Fallback when new module isn't available
+        from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 
 from .forms import ContactFormBuilder, remove_captcha_field
 
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
-
-import wagtail
-from django.conf import settings
-from wagtail.contrib.forms.models import AbstractEmailForm
-
-from .forms import remove_captcha_field
 
 
 class FormField(AbstractFormField):
