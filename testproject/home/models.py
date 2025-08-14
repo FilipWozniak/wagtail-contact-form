@@ -1,6 +1,6 @@
 from django.db import models
 
-from wagtail.models import Page
+from contact_form.compat import Page
 
 
 class HomePage(Page):
