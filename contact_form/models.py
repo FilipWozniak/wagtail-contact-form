@@ -1,9 +1,15 @@
 import contextlib
 
+import wagtail
 from django.conf import settings
 from django.db import models
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
+from wagtail.admin.panels import (
+    FieldPanel,
+    FieldRowPanel,
+    InlinePanel,
+    MultiFieldPanel,
+)
 from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 from wagtail.fields import RichTextField
 
@@ -11,12 +17,6 @@ from .forms import ContactFormBuilder, remove_captcha_field
 
 with contextlib.suppress(ModuleNotFoundError):
     import cjkcms
-
-import wagtail
-from django.conf import settings
-from wagtail.contrib.forms.models import AbstractEmailForm
-
-from .forms import remove_captcha_field
 
 
 class FormField(AbstractFormField):
@@ -30,8 +30,7 @@ class FormField(AbstractFormField):
 class ContactPage(AbstractEmailForm):
 
     template = "contact_form/contact_page.html"
-    # This is the default path. If ignored, Wagtail adds _landing.html to your template name.
-    thankyou_page_template = "contact_form/contact_page_thankyou.html"
+    landing_page_template = "contact_form/contact_page_landing.html"
 
     form_builder = ContactFormBuilder
 
