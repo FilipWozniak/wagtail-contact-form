@@ -171,3 +171,5 @@ WAGTAILSEARCH_BACKENDS = {
 WAGTAILADMIN_BASE_URL = "http://example.com"
 
 SECRET_KEY = "fZRTqd@MgNajH&6L7uKfPp*nveD7789D8"
+
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
