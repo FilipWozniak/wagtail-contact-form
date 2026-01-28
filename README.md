@@ -21,7 +21,7 @@ A very basic contact form with `CAPTCHA` module that protects you against spam.
 
 ### [Installation](README/Installation.md)
 
-### [Form Fields Configuration](README/Form%20Fields%20Configuration.md)
+### [Configuration](README/Configuration.md)
 
 ### [Common Issues](README/Common%20Issues.md)
 
