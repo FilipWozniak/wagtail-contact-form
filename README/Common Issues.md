@@ -1,13 +1,14 @@
 # Common Issues
 
-Note that if you are using MacOS you may stumble across `URLError` while trying to submit the form.
+If you are using `MacOS` you may encounter `URLError` while trying to submit the form.
 
-```shell script
+```shell
 URLError at /contact-us/
-<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] Certificate Verify Failed: Unable to Get Local Issuer Certificate (_ssl.c:1122)>
+[SSL: CERTIFICATE_VERIFY_FAILED] Certificate Verify Failed
 ```
 
-As regards to "[Scraping: SSL: CERTIFICATE_VERIFY_FAILED](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org)" issue on [Stack Overflow](https://stackoverflow.com), all you need to do is go to *Macintosh HD* → *Applications* → *Python* folder and double click on **Install Certificates.command** file.
+![3.png](../README/images/3.png)
 
-![URL Error](contact_form/README/URL%20Error.png)
-
+So, to resolve this issue, please navigate to `Macintosh HD` > `Applications` > `Python` and double-click on
+`Install Certificates.command`, as described in
+this [thread](https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org).
