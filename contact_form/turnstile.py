@@ -32,11 +32,13 @@ class TurnstileWidget(forms.Widget):
 
     def get_context(self, name: str, value: Any, attrs: dict[str, Any] | None) -> dict:
         context = super().get_context(name, value, attrs)
-        context["widget"].update({
-            "site_key": self.site_key,
-            "theme": self.theme,
-            "size": self.size,
-        })
+        context["widget"].update(
+            {
+                "site_key": self.site_key,
+                "theme": self.theme,
+                "size": self.size,
+            }
+        )
         return context
 
     def render(

@@ -16,7 +16,7 @@
 
         "django_recaptcha",
         "widget_tweaks",
-        
+
         "wagtail.contrib.forms",
         "wagtail.contrib.settings",
    ]
@@ -43,4 +43,3 @@
 3. Follow steps `2` and `3` from the section above titled `Installation (Production)`.
 
 </details>
-

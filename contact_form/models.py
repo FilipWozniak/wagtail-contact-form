@@ -60,16 +60,24 @@ class ContactPage(AbstractEmailForm):
         FieldPanel("intro"),
         InlinePanel("form_fields", label="Form Fields"),
         FieldPanel("thank_you_text"),
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel("from_address", classname="col6"),
-                FieldPanel("to_address", classname="col6"),
-            ]),
-            FieldPanel("subject"),
-        ], heading="Email Settings"),
-        MultiFieldPanel([
-            FieldPanel("captcha_provider"),
-        ], heading="Provider"),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel("from_address", classname="col6"),
+                        FieldPanel("to_address", classname="col6"),
+                    ]
+                ),
+                FieldPanel("subject"),
+            ],
+            heading="Email Settings",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("captcha_provider"),
+            ],
+            heading="Provider",
+        ),
     ]
 
     def get_form_class_for_request(self, request: HttpRequest | None = None) -> type:
@@ -81,12 +89,12 @@ class ContactPage(AbstractEmailForm):
         return self.get_form_class_for_request(request)
 
     def get_form(
-            self,
-            form_data: dict[str, Any] | None = None,
-            form_files: dict[str, Any] | None = None,
-            page: Any = None,
-            user: Any = None,
-            request: HttpRequest | None = None,
+        self,
+        form_data: dict[str, Any] | None = None,
+        form_files: dict[str, Any] | None = None,
+        page: Any = None,
+        user: Any = None,
+        request: HttpRequest | None = None,
     ) -> Any:
         if request:
             self._current_request = request

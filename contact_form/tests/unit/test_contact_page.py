@@ -35,9 +35,6 @@ def form_submission_data():
 class TestContactPage:
     @pytest.fixture
     def contact_page(self):
-        """
-        Fixture to create a ContactPage instance for testing.
-        """
         page = ContactPage(
             title="Contact Us",
             intro="We're here to help and answer any questions you might have. We look forward to hearing from you.",
@@ -52,30 +49,18 @@ class TestContactPage:
         return page
 
     def test_contact_page_url(self, client, contact_page):
-        """
-        Test the URL of the ContactPage to ensure it returns a 200 status code.
-        """
         response = client.get(contact_page.url)
         assert response.status_code == 200
 
     def test_create_contact_page(self, contact_page):
-        """
-        Test the creation of a ContactPage instance and its attributes.
-        """
         assert contact_page.title == "Contact Us"
         assert (
             contact_page.intro
             == "We're here to help and answer any questions you might have. We look forward to hearing from you."
         )
-        assert (
-            contact_page.landing_page_template
-            == "contact_form/contact_page_landing.html"
-        )
+        assert contact_page.landing_page_template == "contact_form/contact_page_landing.html"
 
     def test_create_form_fields(self, contact_page):
-        """
-        Test the creation of form fields for the ContactPage.
-        """
         full_name_field = FormField.objects.create(
             page=contact_page,
             sort_order=1,
@@ -115,19 +100,11 @@ class TestContactPage:
 
         assert contact_page.form_fields.count() == 3
 
-    def test_send_form_submission_successfully(
-        self, client, contact_page, form_submission_data
-    ):
-        """
-        Test the successful submission of a form on the ContactPage.
-        """
+    def test_send_form_submission_successfully(self, client, contact_page, form_submission_data):
         response = client.post(contact_page.url, form_submission_data)
         assert response.status_code == 200
 
     def test_form_submission_database_save(self, contact_page, form_submission_data):
-        """
-        Test the saving of form submission data to the database.
-        """
         FormSubmission.objects.create(
             form_data=form_submission_data,
             page=contact_page,
@@ -139,19 +116,10 @@ class TestContactPage:
         assert latest_submission.form_data["message"] == "This is a test message."
 
     def test_custom_base_template(self, client, settings, contact_page):
-        """
-        Test that the default base template is used.
-        """
-        # settings.INSTALLED_APPS.append('cjkcms')
         response = client.get(contact_page.url)
         assert response.status_code == 200
         assert "base.html" in [template.name for template in response.templates]
 
-    def test_form_submission_email_sent(
-        self, client, contact_page, form_submission_data
-    ):
-        """
-        Test that an email is sent when the contact form is successfully submitted.
-        """
+    def test_form_submission_email_sent(self, client, contact_page, form_submission_data):
         response = client.post(contact_page.url, form_submission_data)
         assert response.status_code

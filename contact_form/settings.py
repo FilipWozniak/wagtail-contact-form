@@ -5,7 +5,6 @@ from typing import Any
 from typing import ClassVar
 
 from django.db import models
-from django.forms.widgets import PasswordInput
 from wagtail.admin.panels import FieldPanel
 from wagtail.admin.panels import MultiFieldPanel
 from wagtail.admin.panels import ObjectList
@@ -42,6 +41,22 @@ class CaptchaSettingsPermissionMixin:
         return False
 
 
+class SensitiveFieldPanel(FieldPanel):
+    class BoundPanel(FieldPanel.BoundPanel):
+        class Media:
+            js = ["contact_form/js/sensitive_field.js"]
+
+        def get_context_data(self, parent_context: dict | None = None) -> dict:
+            context = super().get_context_data(parent_context)
+            return context
+
+        @property
+        def attrs(self) -> dict:
+            attrs = super().attrs.copy() if hasattr(super(), "attrs") else {}
+            attrs["data-sensitive-field"] = "true"
+            return attrs
+
+
 @register_setting(icon="lock")
 class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
     class Meta:
@@ -49,35 +64,69 @@ class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
         verbose_name_plural = "CAPTCHA"
 
     # Google reCAPTCHA
-    recaptcha_public_key = models.CharField(max_length=255, blank=True, default="", verbose_name="Public Key")
-    recaptcha_private_key = models.CharField(max_length=255, blank=True, default="", verbose_name="Private Key")
-    recaptcha_required_score = models.CharField(max_length=10, blank=True, default="0.85", verbose_name="Required Score")
-    recaptcha_domain = models.CharField(max_length=255, blank=True, default="www.recaptcha.net", verbose_name="Domain")
+    recaptcha_public_key = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Public Key"
+    )
+    recaptcha_private_key = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Private Key"
+    )
+    recaptcha_required_score = models.CharField(
+        max_length=10, blank=True, default="0.85", verbose_name="Required Score"
+    )
+    recaptcha_domain = models.CharField(
+        max_length=255, blank=True, default="www.recaptcha.net", verbose_name="Domain"
+    )
 
     # Cloudflare Turnstile
-    turnstile_site_key = models.CharField(max_length=255, blank=True, default="", verbose_name="Site Key")
-    turnstile_secret_key = models.CharField(max_length=255, blank=True, default="", verbose_name="Secret Key")
-    turnstile_theme = models.CharField(max_length=10, choices=TurnstileTheme.choices, default=TurnstileTheme.AUTO, verbose_name="Theme")
-    turnstile_size = models.CharField(max_length=10, choices=TurnstileSize.choices, default=TurnstileSize.NORMAL, verbose_name="Widget Size")
+    turnstile_site_key = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Site Key"
+    )
+    turnstile_secret_key = models.CharField(
+        max_length=255, blank=True, default="", verbose_name="Secret Key"
+    )
+    turnstile_theme = models.CharField(
+        max_length=10,
+        choices=TurnstileTheme.choices,
+        default=TurnstileTheme.AUTO,
+        verbose_name="Theme",
+    )
+    turnstile_size = models.CharField(
+        max_length=10,
+        choices=TurnstileSize.choices,
+        default=TurnstileSize.NORMAL,
+        verbose_name="Widget Size",
+    )
 
-    edit_handler: ClassVar[TabbedInterface] = TabbedInterface([
-        ObjectList([
-            MultiFieldPanel([
-                FieldPanel("recaptcha_public_key", widget=PasswordInput(attrs={"placeholder": ""})),
-                FieldPanel("recaptcha_private_key", widget=PasswordInput(attrs={"placeholder": ""})),
-                FieldPanel("recaptcha_required_score"),
-                FieldPanel("recaptcha_domain"),
-            ]),
-        ], heading="Google reCAPTCHA"),
-        ObjectList([
-            MultiFieldPanel([
-                FieldPanel("turnstile_site_key", widget=PasswordInput(attrs={"placeholder": ""})),
-                FieldPanel("turnstile_secret_key", widget=PasswordInput(attrs={"placeholder": ""})),
-                FieldPanel("turnstile_theme"),
-                FieldPanel("turnstile_size"),
-            ]),
-        ], heading="Cloudflare Turnstile"),
-    ])
+    edit_handler: ClassVar[TabbedInterface] = TabbedInterface(
+        [
+            ObjectList(
+                [
+                    MultiFieldPanel(
+                        [
+                            SensitiveFieldPanel("recaptcha_public_key"),
+                            SensitiveFieldPanel("recaptcha_private_key"),
+                            FieldPanel("recaptcha_required_score"),
+                            FieldPanel("recaptcha_domain"),
+                        ]
+                    ),
+                ],
+                heading="Google reCAPTCHA",
+            ),
+            ObjectList(
+                [
+                    MultiFieldPanel(
+                        [
+                            SensitiveFieldPanel("turnstile_site_key"),
+                            SensitiveFieldPanel("turnstile_secret_key"),
+                            FieldPanel("turnstile_theme"),
+                            FieldPanel("turnstile_size"),
+                        ]
+                    ),
+                ],
+                heading="Cloudflare Turnstile",
+            ),
+        ]
+    )
 
     SENSITIVE_FIELDS: ClassVar[list[str]] = [
         "recaptcha_public_key",

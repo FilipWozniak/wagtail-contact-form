@@ -9,10 +9,10 @@
 
    ```python
    EMAIL_HOST = ""
-   EMAIL_PORT = 
+   EMAIL_PORT =
    EMAIL_HOST_USER = ""
    EMAIL_HOST_PASSWORD = ""
-   EMAIL_USE_TLS = 
+   EMAIL_USE_TLS =
    DEFAULT_FROM_EMAIL = ""
    EMAIL_BACKEND = ""
    ```
@@ -44,5 +44,5 @@
    ```
 
    > [!NOTE]
-   > Please remember that if you have saved a form intially with different labels, you must delete the form page
+   > Please remember that if you have saved a form initially with different labels, you must delete the form page
    instance completely and create it again with the correct values.

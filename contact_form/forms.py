@@ -70,7 +70,9 @@ class ContactFormBuilder(FormBuilder):
                 settings.RECAPTCHA_PRIVATE_KEY = keys["secret_key"]
                 if recaptcha_config.get("required_score"):
                     try:
-                        settings.RECAPTCHA_REQUIRED_SCORE = float(recaptcha_config["required_score"])
+                        settings.RECAPTCHA_REQUIRED_SCORE = float(
+                            recaptcha_config["required_score"]
+                        )
                     except (ValueError, TypeError):
                         settings.RECAPTCHA_REQUIRED_SCORE = 0.85
                 if recaptcha_config.get("domain"):
@@ -133,6 +135,7 @@ class ContactFormBuilder(FormBuilder):
     def _get_captcha_settings(self) -> Any | None:
         try:
             from contact_form.settings import CaptchaSettings
+
             return CaptchaSettings.load()
         except Exception:
             return None

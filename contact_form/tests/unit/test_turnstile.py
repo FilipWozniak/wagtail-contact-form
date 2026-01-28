@@ -97,6 +97,7 @@ class TestTurnstileField:
     @patch("contact_form.turnstile.urllib.request.urlopen")
     def test_verify_turnstile_network_error(self, mock_urlopen: MagicMock) -> None:
         import urllib.error
+
         mock_urlopen.side_effect = urllib.error.URLError("Network error")
         field = TurnstileField(site_key="test-site-key", secret_key="test-secret-key")
         success, error = field._verify_turnstile("test-token")
