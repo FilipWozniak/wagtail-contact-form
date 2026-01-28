@@ -12,7 +12,9 @@ from contact_form.models import ContactPage
 from contact_form.models import FormField
 from contact_form.views import CustomFormPagesListView
 from contact_form.views import CustomSubmissionsListView
+from contact_form.views import FormPagePaginator
 from contact_form.views import FormPagesFilterSet
+from contact_form.views import FormSubmissionPaginator
 
 User = get_user_model()
 
@@ -96,8 +98,16 @@ class TestCustomSubmissionsListView:
     def test_page_title(self):
         assert CustomSubmissionsListView.page_title == "Form Data"
 
-    def test_verbose_name_plural(self):
-        assert CustomSubmissionsListView.verbose_name_plural == "Form Submissions"
+    def test_paginator_class(self):
+        assert CustomSubmissionsListView.paginator_class == FormSubmissionPaginator
+
+    def test_paginator_verbose_name_plural(self):
+        paginator = FormSubmissionPaginator([], per_page=10)
+        assert paginator.verbose_name_plural == "Form Submissions"
+
+    def test_paginator_verbose_name(self):
+        paginator = FormSubmissionPaginator([], per_page=10)
+        assert paginator.verbose_name == "Form Submission"
 
 
 @pytest.mark.django_db
@@ -308,6 +318,17 @@ class TestCustomFormPagesListView:
 
     def test_filterset_class(self):
         assert CustomFormPagesListView.filterset_class == FormPagesFilterSet
+
+    def test_paginator_class(self):
+        assert CustomFormPagesListView.paginator_class == FormPagePaginator
+
+    def test_paginator_verbose_name_plural(self):
+        paginator = FormPagePaginator([], per_page=10)
+        assert paginator.verbose_name_plural == "Pages"
+
+    def test_paginator_verbose_name(self):
+        paginator = FormPagePaginator([], per_page=10)
+        assert paginator.verbose_name == "Page"
 
 
 @pytest.mark.django_db

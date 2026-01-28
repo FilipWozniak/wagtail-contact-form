@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 import django_filters
+from django.utils.functional import cached_property
 from django.utils.functional import classproperty
 from wagtail.admin.filters import DateRangePickerWidget
 from wagtail.admin.filters import WagtailFilterSet
+from wagtail.admin.paginator import WagtailPaginator
 from wagtail.admin.ui.tables import DateColumn
 from wagtail.admin.views.pages.listing import PageListingMixin
 from wagtail.contrib.forms.models import FormSubmission
@@ -26,11 +28,31 @@ class SubmissionFilterSet(WagtailFilterSet):
         fields = ["submit_time"]
 
 
+class FormSubmissionPaginator(WagtailPaginator):
+    @cached_property
+    def verbose_name(self) -> str:
+        return "Form Submission"
+
+    @cached_property
+    def verbose_name_plural(self) -> str:
+        return "Form Submissions"
+
+
+class FormPagePaginator(WagtailPaginator):
+    @cached_property
+    def verbose_name(self) -> str:
+        return "Page"
+
+    @cached_property
+    def verbose_name_plural(self) -> str:
+        return "Pages"
+
+
 class CustomSubmissionsListView(SubmissionsListView):
     paginate_by = 10
     page_title = "Form Data"
     filterset_class = SubmissionFilterSet
-    verbose_name_plural = "Form Submissions"
+    paginator_class = FormSubmissionPaginator
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -118,6 +140,7 @@ class FormPagesFilterSet(WagtailFilterSet):
 
 class CustomFormPagesListView(FormPagesListView):
     filterset_class = FormPagesFilterSet
+    paginator_class = FormPagePaginator
 
     @classproperty
     def columns(cls) -> list:
