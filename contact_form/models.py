@@ -20,6 +20,7 @@ from wagtail.fields import RichTextField
 
 from contact_form.forms import ContactFormBuilder
 from contact_form.forms import remove_captcha_field
+from contact_form.views import CustomSubmissionsListView
 
 with contextlib.suppress(ModuleNotFoundError):
     pass
@@ -30,6 +31,23 @@ class CaptchaProvider(models.TextChoices):
     TURNSTILE = "turnstile", "Cloudflare Turnstile"
 
 
+FORM_FIELD_CHOICES = (
+    ("singleline", "Single Line Text"),
+    ("multiline", "Multi Line Text"),
+    ("email", "Email"),
+    ("number", "Number"),
+    ("url", "URL"),
+    ("checkbox", "Checkbox"),
+    ("checkboxes", "Checkboxes"),
+    ("dropdown", "Dropdown"),
+    ("multiselect", "Multiple Select"),
+    ("radio", "Radio Buttons"),
+    ("date", "Date"),
+    ("datetime", "Date/ Time"),
+    ("hidden", "Hidden Field"),
+)
+
+
 class FormField(AbstractFormField):
     page: ParentalKey = ParentalKey(
         "ContactPage",
@@ -37,13 +55,49 @@ class FormField(AbstractFormField):
         related_name="form_fields",
     )
 
+    label = models.CharField(
+        verbose_name="Label",
+        max_length=255,
+    )
+    field_type = models.CharField(
+        verbose_name="Field Type",
+        max_length=16,
+        choices=FORM_FIELD_CHOICES,
+    )
+    help_text = models.CharField(
+        verbose_name="Help Text",
+        max_length=255,
+        blank=True,
+    )
+    default_value = models.TextField(
+        verbose_name="Default Value",
+        blank=True,
+        help_text="Comma or new line separated values supported for checkboxes.",
+    )
+
 
 class ContactPage(AbstractEmailForm):
     template: ClassVar[str] = "contact_form/contact_page.html"
     landing_page_template: ClassVar[str] = "contact_form/contact_page_landing.html"
     form_builder: type[ContactFormBuilder] = ContactFormBuilder
+    submissions_list_view_class = CustomSubmissionsListView
     intro: RichTextField = RichTextField(blank=True)
-    thank_you_text: RichTextField = RichTextField(blank=True)
+    thank_you_text: RichTextField = RichTextField(
+        blank=True,
+        verbose_name="Thank You Message",
+    )
+    from_address = models.EmailField(
+        verbose_name="Address from",
+        max_length=255,
+        blank=True,
+    )
+    to_address = models.CharField(
+        verbose_name="Address to",
+        max_length=255,
+        blank=True,
+        help_text="The form submissions will be emailed to these addresses. "
+        "Please separate multiple recipients by comma.",
+    )
 
     captcha_provider: models.CharField = models.CharField(
         max_length=20,

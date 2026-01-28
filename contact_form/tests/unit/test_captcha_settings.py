@@ -160,7 +160,18 @@ class TestContactFormBuilder:
         page.save()
         return page
 
-    def test_form_builder_with_recaptcha(self, contact_page: ContactPage) -> None:
+    @patch("contact_form.forms.ContactFormBuilder._get_captcha_settings")
+    def test_form_builder_with_recaptcha(
+        self, mock_get_settings: MagicMock, contact_page: ContactPage
+    ) -> None:
+        mock_settings = MagicMock()
+        mock_settings.get_recaptcha_settings.return_value = {
+            "public_key": "test-public-key",
+            "private_key": "test-private-key",
+            "required_score": "0.85",
+            "domain": "www.recaptcha.net",
+        }
+        mock_get_settings.return_value = mock_settings
         contact_page.captcha_provider = CaptchaProvider.RECAPTCHA
         builder = ContactFormBuilder(contact_page.form_fields.all(), page=contact_page)
         fields = builder.formfields
