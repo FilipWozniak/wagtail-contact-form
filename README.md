@@ -2,13 +2,13 @@
 
 ## Description
 
+A very basic contact form with `CAPTCHA` module that protects you against spam.
+
 > [!NOTE]
 > The project supports `Django 5` and `Wagtail 6`.
 
 > [!NOTE]
 > The project supports `Google reCAPTCHA` and `Cloudflare Turnstile`.
-
-A very basic contact form with `CAPTCHA` module that protects you against spam.
 
 <br>
 <p align="center">
@@ -18,6 +18,14 @@ A very basic contact form with `CAPTCHA` module that protects you against spam.
 
 > [!NOTE]
 > `Google reCAPTCHA V3` is now supported, while `Google reCAPTCHA V2` is deprecated.
+
+### [Installation](README/Installation.md)
+
+### [Form Fields Configuration](README/Form%20Fields%20Configuration.md)
+
+### [Common Issues](README/Common%20Issues.md)
+
+### [Testing](README/Testing.md)
 
 ![1.png](README/images/1.png)
 
