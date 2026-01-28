@@ -43,7 +43,16 @@
                 </div>
             </div>
 
-            {{ form.wagtailcaptcha }}
+            {% comment %}CAPTCHA Section{% endcomment %}
+            <div class="captcha-container my-3">
+                {% if captcha_provider == "turnstile" %}
+                    {% comment %}Cloudflare Turnstile{% endcomment %}
+                    {{ form.wagtailcaptcha }}
+                {% else %}
+                    {% comment %}Google reCAPTCHA (Default){% endcomment %}
+                    {{ form.wagtailcaptcha }}
+                {% endif %}
+            </div>
 
             <div class="row mt-5"></div>
             <div class="d-grid gap-2 col-6 mx-auto">
