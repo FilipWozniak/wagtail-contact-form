@@ -63,7 +63,11 @@ def get_captcha_keys_for_environment(
     request: HttpRequest | None = None,
     configured_keys: dict[str, str] | None = None,
 ) -> dict[str, str]:
-    if is_localhost(request):
+    import os
+
+    force_production = os.getenv("CAPTCHA_FORCE_PRODUCTION", "").lower() in ("1", "true", "yes")
+
+    if is_localhost(request) and not force_production:
         if provider == "turnstile":
             return get_turnstile_test_keys()
         else:
