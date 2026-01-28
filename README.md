@@ -12,25 +12,16 @@ A very basic contact form with `CAPTCHA` module that protects you against spam.
 
 <br>
 <p align="center">
-   <img src="contact_form/README/Contact%20Us%20(Illustration).svg" width="60%">
+   <img src="README/images/0.svg" width="60%">
 </p>
 <br>
 
 > [!NOTE]
 > `Google reCAPTCHA V3` is now supported, while `Google reCAPTCHA V2` is deprecated.
 
-<details>
-<summary><h2>Screenshots</h2></summary>
+![1.png](README/images/1.png)
 
-#### Contact Form
-
-![Contact Us](contact_form/README/Contact%20Us.png)
-
-#### "Thank You" Page
-
-!["Thank You" Page](contact_form/README/Thank%20You%20Page.png)
-
-</details>
+![2.png](README/images/2.png)
 
 ## Authors
 
