@@ -10,9 +10,9 @@ from wagtail.models import Site
 
 from contact_form.models import ContactPage
 from contact_form.models import FormField
+from contact_form.views import CustomFormPagesListView
 from contact_form.views import CustomSubmissionsListView
-from contact_form.views import SubmissionDateColumn
-from contact_form.views import TruncatedMessageColumn
+from contact_form.views import FormPagesFilterSet
 
 User = get_user_model()
 
@@ -89,64 +89,84 @@ def form_submissions(contact_page):
 
 
 @pytest.mark.django_db
-class TestTruncatedMessageColumn:
-    def test_truncates_long_message(self):
-        column = TruncatedMessageColumn(max_length=50)
-        long_message = "A" * 100
-        class MockSubmission:
-            def get_data(self):
-                return {"message": long_message}
-        result = column.get_value(MockSubmission())
-        assert len(result) <= 60
-        assert "(...)" in result
-
-    def test_does_not_truncate_short_message(self):
-        column = TruncatedMessageColumn(max_length=100)
-        short_message = "Short Message"
-        class MockSubmission:
-            def get_data(self):
-                return {"message": short_message}
-        result = column.get_value(MockSubmission())
-        assert result == short_message
-        assert "(...)" not in result
-
-    def test_handles_missing_message(self):
-        column = TruncatedMessageColumn()
-        class MockSubmission:
-            def get_data(self):
-                return {}
-        result = column.get_value(MockSubmission())
-        assert result == ""
-
-
-@pytest.mark.django_db
-class TestSubmissionDateColumn:
-    def test_formats_date_correctly(self):
-        column = SubmissionDateColumn()
-
-        class MockSubmission:
-            submit_time = datetime(2025, 1, 12, 9, 45)
-
-        result = column.get_value(MockSubmission())
-        assert result == "12 January 2025 at 09:45"
-
-    def test_handles_none_submit_time(self):
-        column = SubmissionDateColumn()
-
-        class MockSubmission:
-            submit_time = None
-
-        result = column.get_value(MockSubmission())
-        assert result == ""
-
-
-@pytest.mark.django_db
 class TestCustomSubmissionsListView:
     def test_pagination_setting(self):
         assert CustomSubmissionsListView.paginate_by == 10
 
     def test_page_title(self):
         assert CustomSubmissionsListView.page_title == "Form Data"
+
+    def test_verbose_name_plural(self):
+        assert CustomSubmissionsListView.verbose_name_plural == "Form Submissions"
+
+
+@pytest.mark.django_db
+class TestSubmissionsListViewFormatting:
+    def test_message_truncation(self, admin_client, contact_page):
+        long_message = "A" * 200
+        FormSubmission.objects.create(
+            page=contact_page,
+            form_data={
+                "full_name": "Test User",
+                "e-mail_address": "test@example.com",
+                "message": long_message,
+            },
+        )
+        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        response = admin_client.get(url)
+        content = response.content.decode("utf-8")
+        assert "(...)" in content
+        assert long_message not in content
+
+    def test_date_formatting(self, admin_client, contact_page):
+        submission = FormSubmission.objects.create(
+            page=contact_page,
+            form_data={
+                "full_name": "Test User",
+                "e-mail_address": "test@example.com",
+                "message": "Test Message",
+            },
+        )
+        submission.submit_time = datetime(2025, 1, 12, 9, 45)
+        submission.save()
+        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        response = admin_client.get(url)
+        content = response.content.decode("utf-8")
+        assert "12 January 2025 at 09:45" in content
+
+    def test_submission_date_column_is_last(self, admin_client, contact_page):
+        FormSubmission.objects.create(
+            page=contact_page,
+            form_data={
+                "full_name": "Test User",
+                "e-mail_address": "test@example.com",
+                "message": "Test Message",
+            },
+        )
+        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        response = admin_client.get(url)
+        content = response.content.decode("utf-8")
+        listing_start = content.find('class="listing"')
+        table_section = content[listing_start : listing_start + 2000]
+        full_name_pos = table_section.find("Full Name")
+        submission_date_pos = table_section.find("Submission Date")
+        assert full_name_pos > 0
+        assert submission_date_pos > 0
+        assert submission_date_pos > full_name_pos
+
+    def test_submission_date_label(self, admin_client, contact_page):
+        FormSubmission.objects.create(
+            page=contact_page,
+            form_data={
+                "full_name": "Test User",
+                "e-mail_address": "test@example.com",
+                "message": "Test Message",
+            },
+        )
+        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        response = admin_client.get(url)
+        content = response.content.decode("utf-8")
+        assert "Submission Date" in content
 
 
 @pytest.mark.django_db
@@ -270,3 +290,49 @@ class TestSubmissionsListView:
         )
         response = admin_client.get(url)
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+class TestCustomFormPagesListView:
+    def test_columns_do_not_include_origin(self):
+        column_names = [col.name for col in CustomFormPagesListView.columns]
+        assert "content_type" not in column_names
+
+    def test_columns_include_title(self):
+        column_names = [col.name for col in CustomFormPagesListView.columns]
+        assert "title" in column_names
+
+    def test_columns_include_updated(self):
+        column_names = [col.name for col in CustomFormPagesListView.columns]
+        assert "latest_revision_created_at" in column_names
+
+    def test_filterset_class(self):
+        assert CustomFormPagesListView.filterset_class == FormPagesFilterSet
+
+
+@pytest.mark.django_db
+class TestFormPagesFilterSet:
+    def test_filter_label_is_updated(self):
+        filterset = FormPagesFilterSet()
+        assert filterset.filters["latest_revision_created_at"].label == "Updated"
+
+    def test_only_date_filter_present(self):
+        filterset = FormPagesFilterSet()
+        assert "latest_revision_created_at" in filterset.filters
+        assert "owner" not in filterset.filters
+        assert "has_child_pages" not in filterset.filters
+        assert "content_type" not in filterset.filters
+
+
+@pytest.mark.django_db
+class TestFormPagesListViewIntegration:
+    def test_forms_index_returns_200(self, admin_client, contact_page):
+        url = reverse("wagtailforms:index")
+        response = admin_client.get(url)
+        assert response.status_code == 200
+
+    def test_forms_index_does_not_show_origin_column(self, admin_client, contact_page):
+        url = reverse("wagtailforms:index")
+        response = admin_client.get(url)
+        content = response.content.decode("utf-8")
+        assert "Origin" not in content

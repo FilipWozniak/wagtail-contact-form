@@ -1,0 +1,4 @@
+{% load i18n %}
+<td {% if column.classname %}class="{{ column.classname }}"{% endif %}>
+    {% if value %}{{ value|date:"j F Y" }} at {{ value|time:"H:i" }}{% endif %}
+</td>
