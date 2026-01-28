@@ -65,9 +65,23 @@ class ContactFormBuilder(FormBuilder):
                     "site_key": recaptcha_config.get("public_key", ""),
                     "secret_key": recaptcha_config.get("private_key", ""),
                 }
-                keys = get_captcha_keys_for_environment("recaptcha", self.request, configured_keys)
-                settings.RECAPTCHA_PUBLIC_KEY = keys["site_key"]
-                settings.RECAPTCHA_PRIVATE_KEY = keys["secret_key"]
+
+            keys = get_captcha_keys_for_environment("recaptcha", self.request, configured_keys)
+            site_key = keys["site_key"]
+            secret_key = keys["secret_key"]
+
+            if not site_key or not secret_key:
+                logger.warning(
+                    "reCAPTCHA Keys Not Configured - CAPTCHA Disabled. "
+                    "Please Configure Keys in Settings > CAPTCHA."
+                )
+                return None
+
+            settings.RECAPTCHA_PUBLIC_KEY = site_key
+            settings.RECAPTCHA_PRIVATE_KEY = secret_key
+
+            if captcha_settings:
+                recaptcha_config = captcha_settings.get_recaptcha_settings()
                 if recaptcha_config.get("required_score"):
                     try:
                         settings.RECAPTCHA_REQUIRED_SCORE = float(
@@ -77,10 +91,7 @@ class ContactFormBuilder(FormBuilder):
                         settings.RECAPTCHA_REQUIRED_SCORE = 0.85
                 if recaptcha_config.get("domain"):
                     settings.RECAPTCHA_DOMAIN = recaptcha_config["domain"]
-            elif self._is_localhost:
-                keys = get_captcha_keys_for_environment("recaptcha", self.request, None)
-                settings.RECAPTCHA_PUBLIC_KEY = keys["site_key"]
-                settings.RECAPTCHA_PRIVATE_KEY = keys["secret_key"]
+
             return ReCaptchaField(label="", widget=ReCaptchaV3())
         except ImportError:
             logger.warning("Package django-recaptcha is Not Installed")

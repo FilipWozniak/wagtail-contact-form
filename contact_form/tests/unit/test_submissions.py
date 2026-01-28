@@ -213,7 +213,7 @@ class TestXLSXDownload:
         try:
             import openpyxl
         except ImportError:
-            pytest.skip("Package openpyxl Not Installed")
+            pytest.skip("Package openpyxl is Not Installed")
 
         url = reverse(
             "wagtailforms:list_submissions",
@@ -228,7 +228,7 @@ class TestXLSXDownload:
         try:
             import openpyxl
         except ImportError:
-            pytest.skip("Package openpyxl Not Installed")
+            pytest.skip("Package openpyxl is Not Installed")
 
         url = reverse(
             "wagtailforms:list_submissions",
