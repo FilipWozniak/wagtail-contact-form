@@ -41,3 +41,7 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/FilipWozniak/wagtail-contact-form"
 "Bug Tracker" = "https://github.com/FilipWozniak/wagtail-contact-form/issues"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testproject.settings.dev"
+pythonpath = ["testproject"]

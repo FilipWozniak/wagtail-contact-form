@@ -7,6 +7,7 @@ from typing import ClassVar
 from django.db import models
 from django.forms.widgets import PasswordInput
 from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import MultiFieldPanel
 from wagtail.admin.panels import ObjectList
 from wagtail.admin.panels import TabbedInterface
 from wagtail.contrib.settings.models import BaseGenericSetting
@@ -61,16 +62,20 @@ class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
 
     edit_handler: ClassVar[TabbedInterface] = TabbedInterface([
         ObjectList([
-            FieldPanel("recaptcha_public_key", widget=PasswordInput(attrs={"placeholder": "Leave empty to keep current value"})),
-            FieldPanel("recaptcha_private_key", widget=PasswordInput(attrs={"placeholder": "Leave empty to keep current value"})),
-            FieldPanel("recaptcha_required_score"),
-            FieldPanel("recaptcha_domain"),
+            MultiFieldPanel([
+                FieldPanel("recaptcha_public_key", widget=PasswordInput(attrs={"placeholder": ""})),
+                FieldPanel("recaptcha_private_key", widget=PasswordInput(attrs={"placeholder": ""})),
+                FieldPanel("recaptcha_required_score"),
+                FieldPanel("recaptcha_domain"),
+            ]),
         ], heading="Google reCAPTCHA"),
         ObjectList([
-            FieldPanel("turnstile_site_key", widget=PasswordInput(attrs={"placeholder": "Leave empty to keep current value"})),
-            FieldPanel("turnstile_secret_key", widget=PasswordInput(attrs={"placeholder": "Leave empty to keep current value"})),
-            FieldPanel("turnstile_theme"),
-            FieldPanel("turnstile_size"),
+            MultiFieldPanel([
+                FieldPanel("turnstile_site_key", widget=PasswordInput(attrs={"placeholder": ""})),
+                FieldPanel("turnstile_secret_key", widget=PasswordInput(attrs={"placeholder": ""})),
+                FieldPanel("turnstile_theme"),
+                FieldPanel("turnstile_size"),
+            ]),
         ], heading="Cloudflare Turnstile"),
     ])
 
