@@ -77,6 +77,10 @@ class FormField(AbstractFormField):
 
 
 class ContactPage(AbstractEmailForm):
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
     template: ClassVar[str] = "contact_form/contact_page.html"
     landing_page_template: ClassVar[str] = "contact_form/contact_page_landing.html"
     form_builder: type[ContactFormBuilder] = ContactFormBuilder

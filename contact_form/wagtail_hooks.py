@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 @hooks.register("register_admin_urls", order=-1)
 def register_custom_forms_urls() -> list:
     return [
-        path("forms/", include(forms_admin_urls, namespace="wagtailforms")),
+        path("forms/", include(forms_admin_urls)),
     ]
 
 
