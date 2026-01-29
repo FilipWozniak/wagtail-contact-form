@@ -114,13 +114,14 @@ class ContactFormBuilder(FormBuilder):
                 }
                 theme = turnstile_config.get("theme", "auto")
                 size = turnstile_config.get("size", "normal")
-            else:
+
+            if not configured_keys.get("site_key") or not configured_keys.get("secret_key"):
                 configured_keys = {
                     "site_key": getattr(settings, "TURNSTILE_SITE_KEY", ""),
                     "secret_key": getattr(settings, "TURNSTILE_SECRET_KEY", ""),
                 }
-                theme = getattr(settings, "TURNSTILE_THEME", "auto")
-                size = getattr(settings, "TURNSTILE_SIZE", "normal")
+                theme = getattr(settings, "TURNSTILE_THEME", theme)
+                size = getattr(settings, "TURNSTILE_SIZE", size)
 
             keys = get_captcha_keys_for_environment("turnstile", self.request, configured_keys)
             site_key = keys["site_key"]
