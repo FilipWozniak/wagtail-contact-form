@@ -17,32 +17,26 @@
    EMAIL_BACKEND = ""
    ```
 
-3. Add `SILENCED_SYSTEM_CHECKS` variable to `settings.py` file.
+3. Create a page of type `Contact Page` and add all the required fields listed below.
 
-   ```python
-   SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
-   ```
-
-4. Create a page of type `Contact Pag` and add all the required fields listed below.
-
-    - `Full Name`
-    - `E-Mail Address`
-    - `Message`
-
+   - `Full Name`
+   - `E-Mail Address`
+   - `Message`
+   
    > [!WARNING]
    > As you can see from the code snippet below, form fields are not rendered dynamically, which means you need to name
    labels identically as mentioned above — `Full Name`, `E-Mail Address`, `Message`.
-
+   
    ```python
    <div class="col-12 col-sm-6">
-       <div class="form-group mb-3">
-           <label for="full_name">Full Name</label>
-           {% render_field form.full_name placeholder=form.full_name.label class="form-control" %}
-           <small class="form-text text-muted">{{ form.full_name.field.help_text }}</small>
-       </div>
+     <div class="form-group mb-3">
+     <label for="full_name">Full Name</label>
+     {% render_field form.full_name placeholder=form.full_name.label class="form-control" %}
+     <small class="form-text text-muted">{{ form.full_name.field.help_text }}</small>
+     </div>
    </div>
    ```
-
+   
    > [!NOTE]
    > Please remember that if you have saved a form initially with different labels, you must delete the form page
    instance completely and create it again with the correct values.

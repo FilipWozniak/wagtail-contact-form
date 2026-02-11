@@ -168,7 +168,7 @@ class CustomFormPagesListView(FormPagesListView):
                 "title",
                 classname="title",
                 label="Title",
-                url_name="wagtailforms:list_submissions",
+                url_name="custom_contact_form:list_submissions",
                 sort_key="title",
                 width="30%",
             ),

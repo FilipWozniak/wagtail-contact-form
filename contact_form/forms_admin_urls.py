@@ -4,7 +4,7 @@ from wagtail.contrib.forms.views import get_submissions_list_view
 
 from contact_form.views import CustomFormPagesListView
 
-app_name = "wagtailforms"
+app_name = "custom_contact_form"
 
 urlpatterns = [
     path("", CustomFormPagesListView.as_view(), name="index"),

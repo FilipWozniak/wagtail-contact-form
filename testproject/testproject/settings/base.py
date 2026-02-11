@@ -129,12 +129,3 @@ WAGTAILSEARCH_BACKENDS = {
 WAGTAILADMIN_BASE_URL = "http://example.com"
 
 SECRET_KEY = "fZRTqd@MgNajH&6L7uKfPp*nveD7789D8"
-
-# Silence reCAPTCHA test key warning in development
-SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
-
-# Default reCAPTCHA settings (can be overridden in admin)
-RECAPTCHA_PUBLIC_KEY = ""
-RECAPTCHA_PRIVATE_KEY = ""
-RECAPTCHA_REQUIRED_SCORE = 0.85
-RECAPTCHA_DOMAIN = "www.recaptcha.net"

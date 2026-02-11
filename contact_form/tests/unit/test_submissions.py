@@ -122,7 +122,7 @@ class TestSubmissionsListViewFormatting:
                 "message": long_message,
             },
         )
-        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        url = reverse("custom_contact_form:list_submissions", args=[contact_page.pk])
         response = admin_client.get(url)
         content = response.content.decode("utf-8")
         assert "(...)" in content
@@ -139,7 +139,7 @@ class TestSubmissionsListViewFormatting:
         )
         submission.submit_time = datetime(2025, 1, 12, 9, 45)
         submission.save()
-        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        url = reverse("custom_contact_form:list_submissions", args=[contact_page.pk])
         response = admin_client.get(url)
         content = response.content.decode("utf-8")
         assert "12 January 2025 at 09:45" in content
@@ -153,7 +153,7 @@ class TestSubmissionsListViewFormatting:
                 "message": "Test Message",
             },
         )
-        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        url = reverse("custom_contact_form:list_submissions", args=[contact_page.pk])
         response = admin_client.get(url)
         content = response.content.decode("utf-8")
         listing_start = content.find('class="listing"')
@@ -173,7 +173,7 @@ class TestSubmissionsListViewFormatting:
                 "message": "Test Message",
             },
         )
-        url = reverse("wagtailforms:list_submissions", args=[contact_page.pk])
+        url = reverse("custom_contact_form:list_submissions", args=[contact_page.pk])
         response = admin_client.get(url)
         content = response.content.decode("utf-8")
         assert "Submission Date" in content
@@ -183,7 +183,7 @@ class TestSubmissionsListViewFormatting:
 class TestCSVDownload:
     def test_csv_download_returns_200(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "csv"})
@@ -192,7 +192,7 @@ class TestCSVDownload:
 
     def test_csv_download_contains_headers(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "csv"})
@@ -201,7 +201,7 @@ class TestCSVDownload:
 
     def test_csv_download_contains_data(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "csv"})
@@ -210,7 +210,7 @@ class TestCSVDownload:
 
     def test_csv_download_has_correct_filename(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "csv"})
@@ -222,7 +222,7 @@ class TestCSVDownload:
 class TestXLSXDownload:
     def test_xlsx_download_returns_200(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "xlsx"})
@@ -232,7 +232,7 @@ class TestXLSXDownload:
 
     def test_xlsx_download_has_correct_filename(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "xlsx"})
@@ -246,7 +246,7 @@ class TestXLSXDownload:
             pytest.skip("Package openpyxl is Not Installed")
 
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "xlsx"})
@@ -261,7 +261,7 @@ class TestXLSXDownload:
             pytest.skip("Package openpyxl is Not Installed")
 
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url, {"export": "xlsx"})
@@ -279,7 +279,7 @@ class TestXLSXDownload:
 class TestSubmissionsListView:
     def test_list_submissions_view_returns_200(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url)
@@ -287,7 +287,7 @@ class TestSubmissionsListView:
 
     def test_pagination_limits_results(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url)
@@ -295,7 +295,7 @@ class TestSubmissionsListView:
 
     def test_page_title_is_form_data(self, admin_client, contact_page, form_submissions):
         url = reverse(
-            "wagtailforms:list_submissions",
+            "custom_contact_form:list_submissions",
             args=[contact_page.pk],
         )
         response = admin_client.get(url)
@@ -348,12 +348,12 @@ class TestFormPagesFilterSet:
 @pytest.mark.django_db
 class TestFormPagesListViewIntegration:
     def test_forms_index_returns_200(self, admin_client, contact_page):
-        url = reverse("wagtailforms:index")
+        url = reverse("custom_contact_form:index")
         response = admin_client.get(url)
         assert response.status_code == 200
 
     def test_forms_index_does_not_show_origin_column(self, admin_client, contact_page):
-        url = reverse("wagtailforms:index")
+        url = reverse("custom_contact_form:index")
         response = admin_client.get(url)
         content = response.content.decode("utf-8")
         assert "Origin" not in content
