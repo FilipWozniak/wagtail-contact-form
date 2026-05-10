@@ -145,7 +145,7 @@ class CustomFormPagesListView(FormPagesListView):
     @classproperty
     def columns(cls) -> list:
         base_columns = [
-            col for col in PageListingMixin.columns if col.name not in {"title", "type", "status"}
+            col for col in PageListingMixin.base_columns if col.name not in {"title", "type", "status"}
         ]
 
         columns = []
