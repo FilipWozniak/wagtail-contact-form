@@ -1,13 +1,13 @@
 (() => {
-  'use strict';
+  "use strict";
 
-  const WIDGET_SELECTOR = '[data-turnstile-widget]';
+  const WIDGET_SELECTOR = "[data-turnstile-widget]";
 
   const showStatus = (widgetElement, message) => {
     const statusElement = widgetElement.nextElementSibling;
     if (
-      !(statusElement instanceof HTMLElement)
-      || !statusElement.matches('[data-turnstile-status]')
+      !(statusElement instanceof HTMLElement) ||
+      !statusElement.matches("[data-turnstile-status]")
     ) {
       return;
     }
@@ -19,23 +19,23 @@
   const clearStatus = (widgetElement) => {
     const statusElement = widgetElement.nextElementSibling;
     if (
-      !(statusElement instanceof HTMLElement)
-      || !statusElement.matches('[data-turnstile-status]')
+      !(statusElement instanceof HTMLElement) ||
+      !statusElement.matches("[data-turnstile-status]")
     ) {
       return;
     }
 
-    statusElement.textContent = '';
+    statusElement.textContent = "";
     statusElement.hidden = true;
   };
 
   const initializeWidget = (widgetElement) => {
     if (!window.turnstile) {
-      showStatus(widgetElement, widgetElement.dataset.errorMessage || '');
+      showStatus(widgetElement, widgetElement.dataset.errorMessage || "");
       return;
     }
 
-    const form = widgetElement.closest('form');
+    const form = widgetElement.closest("form");
     let widgetId;
 
     const resetWidget = () => {
@@ -44,35 +44,35 @@
           window.turnstile.reset(widgetId);
         }
       } catch {
-        showStatus(widgetElement, widgetElement.dataset.errorMessage || '');
+        showStatus(widgetElement, widgetElement.dataset.errorMessage || "");
       }
     };
 
     try {
       widgetId = window.turnstile.render(widgetElement, {
         sitekey: widgetElement.dataset.sitekey,
-        theme: widgetElement.dataset.theme || 'auto',
-        size: widgetElement.dataset.size || 'normal',
+        theme: widgetElement.dataset.theme || "auto",
+        size: widgetElement.dataset.size || "normal",
         action: widgetElement.dataset.action,
-        'response-field': true,
-        'response-field-name': widgetElement.dataset.responseFieldName,
-        'refresh-expired': 'manual',
-        'refresh-timeout': 'manual',
+        "response-field": true,
+        "response-field-name": widgetElement.dataset.responseFieldName,
+        "refresh-expired": "manual",
+        "refresh-timeout": "manual",
         callback: () => clearStatus(widgetElement),
-        'error-callback': () => {
-          showStatus(widgetElement, widgetElement.dataset.errorMessage || '');
+        "error-callback": () => {
+          showStatus(widgetElement, widgetElement.dataset.errorMessage || "");
         },
-        'expired-callback': () => {
-          showStatus(widgetElement, widgetElement.dataset.expiredMessage || '');
+        "expired-callback": () => {
+          showStatus(widgetElement, widgetElement.dataset.expiredMessage || "");
           resetWidget();
         },
-        'timeout-callback': () => {
-          showStatus(widgetElement, widgetElement.dataset.timeoutMessage || '');
+        "timeout-callback": () => {
+          showStatus(widgetElement, widgetElement.dataset.timeoutMessage || "");
           resetWidget();
         },
       });
     } catch {
-      showStatus(widgetElement, widgetElement.dataset.errorMessage || '');
+      showStatus(widgetElement, widgetElement.dataset.errorMessage || "");
       return;
     }
 
@@ -80,7 +80,7 @@
       return;
     }
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener("submit", (event) => {
       try {
         const isExpired = window.turnstile.isExpired(widgetId);
         const response = window.turnstile.getResponse(widgetId);
@@ -92,13 +92,13 @@
         showStatus(
           widgetElement,
           isExpired
-            ? widgetElement.dataset.expiredMessage || ''
-            : widgetElement.dataset.requiredMessage || '',
+            ? widgetElement.dataset.expiredMessage || ""
+            : widgetElement.dataset.requiredMessage || "",
         );
         resetWidget();
       } catch {
         event.preventDefault();
-        showStatus(widgetElement, widgetElement.dataset.errorMessage || '');
+        showStatus(widgetElement, widgetElement.dataset.errorMessage || "");
       }
     });
   };
@@ -111,12 +111,10 @@
     });
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener(
-      'DOMContentLoaded',
-      initializeTurnstile,
-      { once: true },
-    );
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeTurnstile, {
+      once: true,
+    });
   } else {
     initializeTurnstile();
   }

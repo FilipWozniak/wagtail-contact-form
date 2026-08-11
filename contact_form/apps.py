@@ -9,6 +9,8 @@ class ContactFormConfig(AppConfig):
     verbose_name: str = "Contact Form"
 
     def ready(self) -> None:
+        from contact_form import checks  # noqa: F401
+
         try:
             from contact_form import settings  # noqa: F401
         except ImportError:
