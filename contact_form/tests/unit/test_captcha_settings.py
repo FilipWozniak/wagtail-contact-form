@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
 from django.core.exceptions import DisallowedHost
 from django.core.exceptions import ValidationError
+from django.forms import PasswordInput
 from django.utils.translation import override
 from wagtail.models import Site
 
@@ -18,9 +18,6 @@ from contact_form.models import CaptchaProvider
 from contact_form.models import ContactPage
 from contact_form.settings import CaptchaSettings
 from contact_form.turnstile import TurnstileField
-
-if TYPE_CHECKING:
-    pass
 
 
 class TestCaptchaConfigurationField:
@@ -64,6 +61,7 @@ class TestCaptchaConfigurationField:
 
 @pytest.mark.django_db
 class TestCaptchaSettings:
+
     def test_captcha_settings_creation(self) -> None:
         settings = CaptchaSettings.objects.create(
             recaptcha_public_key="test-public-key",
@@ -239,4 +237,3 @@ class TestContactFormBuilder:
         assert isinstance(captcha_field, TurnstileField)
         assert captcha_field.expected_action == "contact_form"
         assert captcha_field.page is contact_page
-

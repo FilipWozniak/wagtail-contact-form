@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-import smtplib
 from typing import Any
-from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
-from django.core import mail
 from django.test import RequestFactory
-from wagtail.contrib.forms.models import FormSubmission
 from wagtail.models import Locale
 from wagtail.models import Site
 

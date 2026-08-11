@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import ClassVar
 
+from django import forms
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.admin.panels import MultiFieldPanel
@@ -42,13 +43,25 @@ class CaptchaSettingsPermissionMixin:
 
 
 class SensitiveFieldPanel(FieldPanel):
+    def __init__(
+        self,
+        field_name: str,
+        widget: forms.Widget | None = None,
+        **kwargs: Any,
+    ) -> None:
+        sensitive_widget = (
+            widget
+            if widget is not None
+            else forms.PasswordInput(
+                attrs={"autocomplete": "off"},
+                render_value=True,
+            )
+        )
+        super().__init__(field_name, widget=sensitive_widget, **kwargs)
+
     class BoundPanel(FieldPanel.BoundPanel):
         class Media:
-            js = ["contact_form/js/sensitive_field.js"]
-
-        def get_context_data(self, parent_context: dict | None = None) -> dict:
-            context = super().get_context_data(parent_context)
-            return context
+            js = ["contact_form/js/sensitive_field_reveal.js"]
 
         @property
         def attrs(self) -> dict:
@@ -63,7 +76,6 @@ class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
         verbose_name = "CAPTCHA"
         verbose_name_plural = "CAPTCHA"
 
-    # Google reCAPTCHA
     recaptcha_public_key = models.CharField(
         max_length=255, blank=True, default="", verbose_name="Public Key"
     )
@@ -134,6 +146,7 @@ class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
         "turnstile_site_key",
         "turnstile_secret_key",
     ]
+    LEGACY_MASK_CHARACTER: ClassVar[str] = "•"
 
     @classmethod
     def user_has_permission(cls, request: HttpRequest) -> bool:
@@ -158,14 +171,21 @@ class CaptchaSettings(CaptchaSettingsPermissionMixin, BaseGenericSetting):
             "size": self.turnstile_size,
         }
 
+    @classmethod
+    def _is_legacy_masked_value(cls, value: str) -> bool:
+        return bool(value) and set(value) == {cls.LEGACY_MASK_CHARACTER}
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         if self.pk:
             try:
                 existing = CaptchaSettings.objects.get(pk=self.pk)
                 for field_name in self.SENSITIVE_FIELDS:
                     current_value = getattr(self, field_name, "")
-                    if not current_value:
-                        existing_value = getattr(existing, field_name, "")
+                    existing_value = getattr(existing, field_name, "")
+                    legacy_mask_would_overwrite_real_value = self._is_legacy_masked_value(
+                        current_value
+                    ) and not self._is_legacy_masked_value(existing_value)
+                    if not current_value or legacy_mask_would_overwrite_real_value:
                         setattr(self, field_name, existing_value)
             except CaptchaSettings.DoesNotExist:
                 pass
