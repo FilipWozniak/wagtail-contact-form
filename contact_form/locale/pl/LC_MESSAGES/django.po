@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wagtail-contact-form\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-11 00:00+0000\n"
+"PO-Revision-Date: 2026-08-11 00:00+0000\n"
+"Last-Translator: GSTHR Team\n"
+"Language-Team: Polish\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
+"(n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Full Name"
+msgstr "Imię i Nazwisko"
+
+msgid "E-Mail Address"
+msgstr "Adres E-Mail"
+
+msgid "Email Address"
+msgstr "Adres E-mail"
+
+msgid "Message"
+msgstr "Wiadomość"
+
+msgid "Submit Form"
+msgstr "Wyślij"
+
+msgid "We could not load the security check. Please try again."
+msgstr "Nie udało się załadować zabezpieczenia CAPTCHA."
+
+msgid "The security check expired. Please complete it again."
+msgstr "Zabezpieczenie CAPTCHA wygasło. Przeładuj stronę i spróbuj ponownie."
+
+msgid "The security check timed out. Please complete it again."
+msgstr "Upłynął limit zabezpieczenia CATPCHA. Przeładuj stronę i spróbuj ponownie."
+
+msgid "Please complete the CAPTCHA verification."
+msgstr "Ukończ weryfikację CAPTCHA."
+
+msgid "CAPTCHA verification failed. Please try again."
+msgstr "Weryfikacja CAPTCHA nie powiodła się. Przeładuj stronę i spróbuj ponownie."
+
+msgid "The security check is temporarily unavailable. Please try again later."
+msgstr "Kontrola bezpieczeństwa CAPTCHA tymczasowo niedostępna. Przeładuj stronę i spróbuj ponownie."
+
+msgid "Leave this field empty"
+msgstr "Pozostaw to Pole Puste"
+
+msgid "The form is temporarily unavailable. Please try again later."
+msgstr "Formularz jest tymczasowo niedostępny. Spróbuj ponownie później."
+
+msgid "You submitted the form too frequently. Please wait and try again."
+msgstr "Formularz został wysłany zbyt wiele razy. Poczekaj i spróbuj ponownie."
+
+msgid "We could not verify this form. Please reload the page and try again."
+msgstr "Nie mogliśmy zweryfikować tego formularza. Odśwież stronę i spróbuj ponownie."
+
+msgid "Back to Home Page"
+msgstr "Powrót do Strony Głównej"
+
+msgid "Thank You for Your Submission"
+msgstr "Dziękujemy za przesłanie formularza!"
