@@ -70,7 +70,7 @@
             <div class="row">
                 {% for field in form.visible_fields %}
                     {% if field.name != "wagtailcaptcha" %}
-                        <div class="col-12">
+                        <div class="{% if field.name == 'full_name' or field.name == 'e_mail_address' %}col-12 col-md-6{% else %}col-12{% endif %}">
                             {% include "contact_form/includes/form_field.html" with field=field only %}
                         </div>
                     {% endif %}
