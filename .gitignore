@@ -141,6 +141,7 @@ cover/
 
 # Translations
 *.mo
+!contact_form/locale/**/LC_MESSAGES/django.mo
 *.pot
 
 # Django
