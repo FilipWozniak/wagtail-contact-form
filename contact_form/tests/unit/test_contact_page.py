@@ -13,8 +13,6 @@ from wagtail.models import Locale
 from wagtail.models import Site
 
 from contact_form.models import CaptchaProvider
-from contact_form.models import ContactEmailDelivery
-from contact_form.models import ContactEmailDeliveryStatus
 from contact_form.models import ContactPage
 from contact_form.models import FormField
 from contact_form.settings import CaptchaSettings

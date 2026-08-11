@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+from typing import Any
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from django.core.exceptions import DisallowedHost
+from django.core.exceptions import ValidationError
+from django.utils.translation import override
 from wagtail.models import Site
 
 from contact_form.forms import ContactFormBuilder
+from contact_form.forms import CaptchaConfigurationField
+from contact_form.forms import _get_turnstile_allowed_hostnames
 from contact_form.models import CaptchaProvider
 from contact_form.models import ContactPage
 from contact_form.settings import CaptchaSettings
@@ -15,6 +21,45 @@ from contact_form.turnstile import TurnstileField
 
 if TYPE_CHECKING:
     pass
+
+
+class TestCaptchaConfigurationField:
+    @pytest.mark.parametrize(
+        ("language", "expected_message"),
+        [
+            (
+                "pl",
+                "Kontrola bezpieczeństwa jest tymczasowo niedostępna. Spróbuj ponownie później.",
+            ),
+            (
+                "es",
+                "La comprobación de seguridad no está disponible temporalmente. Inténtalo de nuevo más tarde.",
+            ),
+            (
+                "ru",
+                "Проверка безопасности временно недоступна. Повторите попытку позже.",
+            ),
+        ],
+    )
+    @patch("contact_form.notifications.notify_captcha_error")
+    def test_unavailable_error_is_translated(
+        self,
+        _mock_notify: MagicMock,
+        language: str,
+        expected_message: str,
+    ) -> None:
+        field = CaptchaConfigurationField(
+            provider="Cloudflare Turnstile",
+            error_message="Turnstile Keys Not Configured",
+            page=None,
+            request=None,
+        )
+
+        with override(language):
+            with pytest.raises(ValidationError) as exc_info:
+                field.clean("")
+
+            assert exc_info.value.messages == [expected_message]
 
 
 @pytest.mark.django_db
@@ -161,9 +206,7 @@ class TestContactFormBuilder:
         return page
 
     @patch("contact_form.forms.ContactFormBuilder._get_captcha_settings")
-    def test_form_builder_with_recaptcha(
-        self, mock_get_settings: MagicMock, contact_page: ContactPage
-    ) -> None:
+    def test_form_builder_with_recaptcha(self, mock_get_settings: MagicMock, contact_page: ContactPage) -> None:
         mock_settings = MagicMock()
         mock_settings.get_recaptcha_settings.return_value = {
             "public_key": "test-public-key",
@@ -178,9 +221,7 @@ class TestContactFormBuilder:
         assert ContactFormBuilder.CAPTCHA_FIELD_NAME in fields
 
     @patch("contact_form.forms.ContactFormBuilder._get_captcha_settings")
-    def test_form_builder_with_turnstile(
-        self, mock_get_settings: MagicMock, contact_page: ContactPage
-    ) -> None:
+    def test_form_builder_with_turnstile(self, mock_get_settings: MagicMock, contact_page: ContactPage) -> None:
         mock_settings = MagicMock()
         mock_settings.get_turnstile_settings.return_value = {
             "site_key": "test-site-key",
@@ -196,6 +237,6 @@ class TestContactFormBuilder:
         assert ContactFormBuilder.CAPTCHA_FIELD_NAME in fields
         captcha_field = fields[ContactFormBuilder.CAPTCHA_FIELD_NAME]
         assert isinstance(captcha_field, TurnstileField)
+        assert captcha_field.expected_action == "contact_form"
+        assert captcha_field.page is contact_page
 
-    def test_form_builder_captcha_field_name(self) -> None:
-        assert ContactFormBuilder.CAPTCHA_FIELD_NAME == "wagtailcaptcha"

@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 from io import BytesIO
 
 import pytest
@@ -137,7 +138,7 @@ class TestSubmissionsListViewFormatting:
                 "message": "Test Message",
             },
         )
-        submission.submit_time = datetime(2025, 1, 12, 9, 45)
+        submission.submit_time = datetime(2025, 1, 12, 9, 45, tzinfo=timezone.utc)
         submission.save()
         url = reverse("custom_contact_form:list_submissions", args=[contact_page.pk])
         response = admin_client.get(url)
