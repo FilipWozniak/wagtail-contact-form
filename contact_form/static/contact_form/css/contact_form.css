@@ -7,3 +7,7 @@
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+#simple_application_form_app textarea.form-control {
+  font-family: inherit;
+}

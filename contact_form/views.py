@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 import django_filters
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 from django.utils.functional import cached_property
 from django.utils.functional import classproperty
@@ -57,9 +55,6 @@ class CustomSubmissionsListView(SubmissionsListView):
     filterset_class = SubmissionFilterSet
     paginator_class = FormSubmissionPaginator
 
-    def get_base_queryset(self) -> QuerySet:
-        return super().get_base_queryset().select_related("contact_email_delivery")
-
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
@@ -72,10 +67,7 @@ class CustomSubmissionsListView(SubmissionsListView):
         non_date_fields = [
             (field_name, field_label) for field_name, field_label in data_fields if field_name != "submit_time"
         ]
-        reordered_fields = non_date_fields + [
-            ("email_delivery_status", _("Email Status")),
-            ("submit_time", _("Submission Date")),
-        ]
+        reordered_fields = non_date_fields + [("submit_time", _("Submission Date"))]
 
         ordering_by_field = self.get_validated_ordering()
         orderable_fields = self.orderable_fields
@@ -107,13 +99,6 @@ class CustomSubmissionsListView(SubmissionsListView):
                         val = submit_time.strftime("%-d %B %Y at %H:%M")
                     else:
                         val = ""
-                elif name == "email_delivery_status":
-                    try:
-                        delivery = submission.contact_email_delivery
-                    except ObjectDoesNotExist:
-                        val = _("Not Tracked")
-                    else:
-                        val = delivery.get_status_display()
                 elif name == "message":
                     val = form_data.get(name, "")
                     if isinstance(val, list):

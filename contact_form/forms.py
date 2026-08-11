@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
 from typing import TYPE_CHECKING
 from typing import Any
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import DisallowedHost
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from wagtail.contrib.forms.forms import FormBuilder
@@ -73,32 +71,11 @@ class CaptchaConfigurationField(forms.Field):
 def _get_turnstile_allowed_hostnames(
     request: HttpRequest | None,
 ) -> tuple[str, ...]:
-    configured_hostnames = getattr(settings, "TURNSTILE_ALLOWED_HOSTNAMES", ())
-    if isinstance(configured_hostnames, str):
-        hostnames = tuple(hostname.strip() for hostname in configured_hostnames.split(",") if hostname.strip())
-    elif isinstance(configured_hostnames, Iterable):
-        hostnames = tuple(str(hostname).strip() for hostname in configured_hostnames if str(hostname).strip())
-    else:
-        hostnames = ()
+    if request is None:
+        return ()
 
-    if hostnames or request is None:
-        return hostnames
-
-    discovered_hostnames: list[str] = []
-    site = getattr(request, "site", None)
-    site_hostname = getattr(site, "hostname", None)
-    if isinstance(site_hostname, str) and site_hostname.strip():
-        discovered_hostnames.append(site_hostname.strip())
-
-    try:
-        request_hostname = request.get_host()
-    except DisallowedHost:
-        request_hostname = ""
-
-    if request_hostname and request_hostname not in discovered_hostnames:
-        discovered_hostnames.append(request_hostname)
-
-    return tuple(discovered_hostnames)
+    hostname = request.get_host()
+    return (hostname,) if hostname else ()
 
 
 class ContactFormBuilder(FormBuilder):
@@ -151,10 +128,7 @@ class ContactFormBuilder(FormBuilder):
             secret_key = keys["secret_key"]
 
             if not site_key or not secret_key:
-                logger.warning(
-                    "reCAPTCHA keys not configured. "
-                    "Please configure keys in Settings > CAPTCHA."
-                )
+                logger.warning("reCAPTCHA keys not configured. Please configure keys in Settings > CAPTCHA.")
                 return CaptchaConfigurationField(
                     provider="Google reCAPTCHA",
                     error_message="reCAPTCHA Not Configured",

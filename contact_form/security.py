@@ -4,26 +4,21 @@ import hashlib
 import hmac
 import ipaddress
 import json
+import math
 import re
 import secrets
 import time
 from dataclasses import dataclass
 from datetime import timedelta
+from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from uuid import UUID
 
 from django.conf import settings
 from django.core import signing
+from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import DatabaseError
-from django.db import IntegrityError
-from django.db import transaction
-from django.db.models import F
-from django.utils import timezone
-
-from contact_form.models import ContactFormSecurityState
-from contact_form.models import SecurityEventKind
 
 if TYPE_CHECKING:
     from django import forms
@@ -44,6 +39,18 @@ DEFAULT_MINIMUM_COMPLETION_SECONDS = 3
 DEFAULT_TOKEN_MAX_AGE_SECONDS = 7200
 DEFAULT_DUPLICATE_WINDOW_SECONDS = 600
 DEFAULT_IPV6_PREFIX_LENGTH = 64
+
+SECURITY_CACHE_KEY_PREFIX = "contact-form-security:v1"
+
+
+class SecurityEventKind(str, Enum):
+    CAPTCHA_NOTIFICATION = "captcha_notification"
+    POST_RATE_LIMIT = "post_rate_limit"
+    DUPLICATE_CONTENT = "duplicate_content"
+    SUBMISSION_NONCE = "submission_nonce"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class FormSecurityError(ValueError):
@@ -301,17 +308,83 @@ def get_submission_nonce_hash(*, page: ContactPage, nonce: str) -> str:
     return privacy_hash("contact-form-nonce", page.translation_key, nonce)
 
 
-def is_submission_nonce_used(*, page: ContactPage, nonce_hash: str) -> bool:
+def _security_cache_key(
+    *,
+    kind: str,
+    scope_hash: str,
+    fingerprint: str,
+    bucket: int | None = None,
+) -> str:
+    parts = [str(kind), scope_hash, fingerprint]
+    if bucket is not None:
+        parts.append(str(bucket))
+    digest = hashlib.sha256("\x1f".join(parts).encode("utf-8")).hexdigest()
+    return f"{SECURITY_CACHE_KEY_PREFIX}:{digest}"
+
+
+def _reservation_key(
+    *,
+    kind: str,
+    scope_hash: str,
+    fingerprint: str,
+) -> str:
+    return _security_cache_key(
+        kind=kind,
+        scope_hash=scope_hash,
+        fingerprint=fingerprint,
+    )
+
+
+def _reserve_once(
+    *,
+    kind: str,
+    scope_hash: str,
+    fingerprint: str,
+    duration_seconds: int,
+) -> SecurityWindowDecision:
+    key = _reservation_key(
+        kind=kind,
+        scope_hash=scope_hash,
+        fingerprint=fingerprint,
+    )
     try:
-        return ContactFormSecurityState.objects.filter(
-            kind=SecurityEventKind.SUBMISSION_NONCE,
-            scope_hash=get_page_scope_hash(page),
-            fingerprint=nonce_hash,
-            expires_at__gt=timezone.now(),
-            count__gte=1,
-        ).exists()
-    except DatabaseError as exc:
-        raise SecurityStateUnavailable("CONTACT_FORM security state is unavailable.") from exc
+        allowed = bool(cache.add(key, True, timeout=duration_seconds))
+    except Exception as exc:
+        raise SecurityStateUnavailable("CONTACT_FORM security cache is unavailable.") from exc
+    return SecurityWindowDecision(
+        allowed=allowed,
+        retry_after_seconds=0 if allowed else duration_seconds,
+        previous_count=0 if allowed else 1,
+    )
+
+
+def _release_reservation(
+    *,
+    kind: str,
+    scope_hash: str,
+    fingerprint: str,
+) -> bool:
+    key = _reservation_key(
+        kind=kind,
+        scope_hash=scope_hash,
+        fingerprint=fingerprint,
+    )
+    try:
+        return bool(cache.delete(key))
+    except Exception as exc:
+        raise SecurityStateUnavailable("CONTACT_FORM security cache is unavailable.") from exc
+
+
+def is_submission_nonce_used(*, page: ContactPage, nonce_hash: str) -> bool:
+    key = _reservation_key(
+        kind=str(SecurityEventKind.SUBMISSION_NONCE),
+        scope_hash=get_page_scope_hash(page),
+        fingerprint=nonce_hash,
+    )
+    try:
+        return cache.get(key) is not None
+    except Exception as exc:
+        raise SecurityStateUnavailable("CONTACT_FORM security cache is unavailable.") from exc
 
 
 def acquire_security_window(
@@ -322,58 +395,71 @@ def acquire_security_window(
     duration: timedelta,
     limit: int,
 ) -> SecurityWindowDecision:
+    duration_seconds = max(1, math.ceil(duration.total_seconds()))
     if limit < 1 or duration.total_seconds() <= 0:
         raise ValueError("Security windows require a positive duration and limit.")
 
-    now = timezone.now()
-    expires_at = now + duration
+    if limit == 1:
+        return _reserve_once(
+            kind=kind,
+            scope_hash=scope_hash,
+            fingerprint=fingerprint,
+            duration_seconds=duration_seconds,
+        )
 
-    lookup = {
-        "kind": kind,
-        "scope_hash": scope_hash,
-        "fingerprint": fingerprint,
-    }
+    now = int(time.time())
+    bucket = now // duration_seconds
+    retry_after_seconds = duration_seconds - (now % duration_seconds)
+    key = _security_cache_key(
+        kind=kind,
+        scope_hash=scope_hash,
+        fingerprint=fingerprint,
+        bucket=bucket,
+    )
 
     try:
-        for _attempt in range(3):
-            queryset = ContactFormSecurityState.objects.filter(**lookup)
-
-            if queryset.filter(expires_at__lte=now).update(
-                window_started_at=now,
-                expires_at=expires_at,
-                count=1,
-                last_event_at=now,
-            ):
-                return SecurityWindowDecision(True, 0, 0)
-
-            if queryset.filter(expires_at__gt=now, count__lt=limit).update(
-                count=F("count") + 1,
-                last_event_at=now,
-            ):
-                current_count = int(queryset.values_list("count", flat=True).get())
-                return SecurityWindowDecision(True, 0, max(0, current_count - 1))
-
-            state = queryset.only("count", "expires_at").first()
-            if state is not None:
-                retry_after = max(1, int((state.expires_at - now).total_seconds()))
-                return SecurityWindowDecision(False, retry_after, state.count)
-
+        if cache.add(key, 1, timeout=duration_seconds + 1):
+            count = 1
+        else:
             try:
-                with transaction.atomic():
-                    ContactFormSecurityState.objects.create(
-                        **lookup,
-                        window_started_at=now,
-                        expires_at=expires_at,
-                        count=1,
-                        last_event_at=now,
-                    )
-                return SecurityWindowDecision(True, 0, 0)
-            except IntegrityError:
-                continue
+                count = int(cache.incr(key))
+            except ValueError:
+                if not cache.add(key, 1, timeout=duration_seconds + 1):
+                    count = int(cache.incr(key))
+                else:
+                    count = 1
+    except Exception as exc:
+        raise SecurityStateUnavailable("CONTACT_FORM security cache is unavailable.") from exc
 
-        raise SecurityStateUnavailable("Couldn't acquire CONTACT_FORM security state.")
-    except DatabaseError as exc:
-        raise SecurityStateUnavailable("CONTACT_FORM security state is unavailable.") from exc
+    return SecurityWindowDecision(
+        allowed=count <= limit,
+        retry_after_seconds=0 if count <= limit else max(1, retry_after_seconds),
+        previous_count=max(0, count - 1),
+    )
+
+
+def release_duplicate_submission(
+    *,
+    page: ContactPage,
+    submission_fingerprint: str,
+) -> bool:
+    return _release_reservation(
+        kind=str(SecurityEventKind.DUPLICATE_CONTENT),
+        scope_hash=get_page_scope_hash(page),
+        fingerprint=submission_fingerprint,
+    )
+
+
+def release_submission_nonce(
+    *,
+    page: ContactPage,
+    nonce_hash: str,
+) -> bool:
+    return _release_reservation(
+        kind=str(SecurityEventKind.SUBMISSION_NONCE),
+        scope_hash=get_page_scope_hash(page),
+        fingerprint=nonce_hash,
+    )
 
 
 def consume_post_rate_limit(
@@ -406,12 +492,11 @@ def reserve_duplicate_submission(
         "CONTACT_FORM_DUPLICATE_WINDOW_SECONDS",
         DEFAULT_DUPLICATE_WINDOW_SECONDS,
     )
-    return acquire_security_window(
+    return _reserve_once(
         kind=str(SecurityEventKind.DUPLICATE_CONTENT),
         scope_hash=get_page_scope_hash(page),
         fingerprint=submission_fingerprint,
-        duration=timedelta(seconds=duration_seconds),
-        limit=1,
+        duration_seconds=duration_seconds,
     )
 
 
@@ -424,10 +509,9 @@ def reserve_submission_nonce(
         "CONTACT_FORM_TOKEN_MAX_AGE_SECONDS",
         DEFAULT_TOKEN_MAX_AGE_SECONDS,
     )
-    return acquire_security_window(
+    return _reserve_once(
         kind=str(SecurityEventKind.SUBMISSION_NONCE),
         scope_hash=get_page_scope_hash(page),
         fingerprint=nonce_hash,
-        duration=timedelta(seconds=maximum_age_seconds),
-        limit=1,
+        duration_seconds=maximum_age_seconds,
     )

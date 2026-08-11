@@ -12,11 +12,11 @@ from typing import Any
 from django.conf import settings
 from django.core.mail import send_mail
 
+from contact_form.security import SecurityEventKind
 from contact_form.security import SecurityStateUnavailable
 from contact_form.security import acquire_security_window
 from contact_form.security import get_page_scope_hash
 from contact_form.security import privacy_hash
-from contact_form.models import SecurityEventKind
 from contact_form.utils import is_localhost
 
 if TYPE_CHECKING:

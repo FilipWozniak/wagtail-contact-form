@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 from typing import ClassVar
 
@@ -29,6 +30,12 @@ from wagtail.models import TranslatableMixin
 from contact_form.forms import ContactFormBuilder
 from contact_form.forms import remove_captcha_field
 from contact_form.views import CustomSubmissionsListView
+
+logger = logging.getLogger(__name__)
+
+
+class ContactFormEmailError(RuntimeError):
+    """Raise Error"""
 
 
 class CaptchaProvider(models.TextChoices):
@@ -95,74 +102,6 @@ class FormField(TranslatableMixin, AbstractFormField):
         super().save(*args, **kwargs)
 
 
-class SecurityEventKind(models.TextChoices):
-    CAPTCHA_NOTIFICATION = "captcha_notification", _("CAPTCHA Notification")
-    POST_RATE_LIMIT = "post_rate_limit", _("POST Rate Limit")
-    DUPLICATE_CONTENT = "duplicate_content", _("Duplicate Content")
-    SUBMISSION_NONCE = "submission_nonce", _("Submission Nonce")
-
-
-class ContactFormSecurityState(models.Model):
-
-    kind = models.CharField(max_length=32, choices=SecurityEventKind.choices)
-    scope_hash = models.CharField(max_length=64)
-    fingerprint = models.CharField(max_length=64)
-    window_started_at = models.DateTimeField()
-    expires_at = models.DateTimeField(db_index=True)
-    count = models.PositiveIntegerField(default=0)
-    last_event_at = models.DateTimeField()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=("kind", "scope_hash", "fingerprint"),
-                name="contact_form_unique_security_state",
-            ),
-        ]
-        indexes = [
-            models.Index(fields=("kind", "expires_at"), name="contact_sec_kind_exp_idx"),
-        ]
-
-
-class ContactEmailDeliveryStatus(models.TextChoices):
-    PENDING = "pending", _("Pending")
-    SENDING = "sending", _("Sending")
-    SENT = "sent", _("Sent")
-    FAILED = "failed", _("Failed")
-    UNKNOWN = "unknown", _("Delivery Unknown")
-
-
-class ContactEmailDelivery(models.Model):
-
-    submission = models.OneToOneField(
-        "wagtailforms.FormSubmission",
-        on_delete=models.CASCADE,
-        related_name="contact_email_delivery",
-    )
-    status = models.CharField(
-        max_length=16,
-        choices=ContactEmailDeliveryStatus.choices,
-        default=ContactEmailDeliveryStatus.PENDING,
-        db_index=True,
-    )
-    recipients = models.JSONField(default=list)
-    subject = models.CharField(max_length=255, blank=True)
-    body = models.TextField(blank=True)
-    from_address = models.EmailField(blank=True)
-    message_id = models.CharField(max_length=255, unique=True)
-    submission_nonce_hash = models.CharField(max_length=64, unique=True)
-    attempt_count = models.PositiveIntegerField(default=0)
-    last_error_type = models.CharField(max_length=255, blank=True)
-    last_error_message = models.TextField(blank=True)
-    started_at = models.DateTimeField(null=True, blank=True)
-    sent_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ("-created_at",)
-
-
 class ContactPage(AbstractEmailForm):
     class Meta:
         verbose_name = "Contact Page"
@@ -192,7 +131,7 @@ class ContactPage(AbstractEmailForm):
     )
 
     technical_to_address = models.CharField(
-        verbose_name="Address to (Technical Mailbox)",
+        verbose_name="Address to (Technical)",
         max_length=255,
         blank=True,
         default="",
@@ -387,6 +326,21 @@ class ContactPage(AbstractEmailForm):
                 form_submission = self.process_form_submission(form)
             except DuplicateContactSubmission:
                 form_submission = None
+            except ContactFormEmailError as exc:
+                cause = exc.__cause__ or exc
+                logger.error(
+                    "Error with Sending an Email exception_type=%s",
+                    type(cause).__name__,
+                )
+                response = self._render_contact_form(
+                    request,
+                    form,
+                    *args,
+                    security_error=_("The form is temporarily unavailable. Please try again later."),
+                    status=503,
+                    **kwargs,
+                )
+                return self._protect_contact_response(response)
             return self._protect_contact_response(
                 self.render_landing_page(
                     request,
@@ -399,10 +353,11 @@ class ContactPage(AbstractEmailForm):
         return self._protect_contact_response(self._render_contact_form(request, form, *args, **kwargs))
 
     def process_form_submission(self, form: Any) -> Any:
-        from contact_form.delivery import attempt_email_delivery_after_commit
-        from contact_form.delivery import create_email_delivery
         from contact_form.security import DuplicateContactSubmission
+        from contact_form.security import SecurityStateUnavailable
         from contact_form.security import ValidatedSubmissionSecurity
+        from contact_form.security import release_duplicate_submission
+        from contact_form.security import release_submission_nonce
         from contact_form.security import reserve_duplicate_submission
         from contact_form.security import reserve_submission_nonce
 
@@ -410,39 +365,73 @@ class ContactPage(AbstractEmailForm):
         if not isinstance(submission_security, ValidatedSubmissionSecurity):
             raise RuntimeError("Validated CONTACT_FORM security context is required.")
 
-        remove_captcha_field(form)
-        email_body = self.render_email(form)
-        delivery: ContactEmailDelivery | None = None
+        captcha_name = ContactFormBuilder.CAPTCHA_FIELD_NAME
+        captcha_field = form.fields.get(captcha_name)
+        captcha_value_exists = captcha_name in form.cleaned_data
+        captcha_value = form.cleaned_data.get(captcha_name)
+        nonce_reserved = False
+        duplicate_reserved = False
+        captcha_removed = False
 
-        with transaction.atomic():
+        try:
             nonce_decision = reserve_submission_nonce(
                 page=self,
                 nonce_hash=submission_security.nonce_hash,
             )
+            if not nonce_decision.allowed:
+                raise DuplicateContactSubmission
+            nonce_reserved = True
+
             duplicate_decision = reserve_duplicate_submission(
                 page=self,
                 submission_fingerprint=submission_security.submission_fingerprint,
             )
-            if not nonce_decision.allowed or not duplicate_decision.allowed:
+            if not duplicate_decision.allowed:
                 raise DuplicateContactSubmission
+            duplicate_reserved = True
 
-            submission = AbstractForm.process_form_submission(self, form)
-            if self.to_address:
-                delivery = create_email_delivery(
-                    submission=submission,
-                    recipients=self.to_address,
-                    subject=self.subject,
-                    body=email_body,
-                    from_address=self.from_address,
-                    submission_nonce_hash=submission_security.nonce_hash,
-                )
+            remove_captcha_field(form)
+            captcha_removed = True
 
-        if delivery is not None:
-            delivery_id = delivery.pk
-            transaction.on_commit(
-                lambda: attempt_email_delivery_after_commit(delivery_id),
-                robust=True,
-            )
+            with transaction.atomic():
+                submission = AbstractForm.process_form_submission(self, form)
+                if self.to_address:
+                    try:
+                        self.send_mail(form)
+                    except Exception as exc:
+                        raise ContactFormEmailError from exc
+        except DuplicateContactSubmission:
+            raise
+        except Exception:
+            if captcha_removed:
+                if captcha_field is not None:
+                    form.fields[captcha_name] = captcha_field
+                if captcha_value_exists:
+                    form.cleaned_data[captcha_name] = captcha_value
+
+            if duplicate_reserved:
+                try:
+                    release_duplicate_submission(
+                        page=self,
+                        submission_fingerprint=submission_security.submission_fingerprint,
+                    )
+                except SecurityStateUnavailable as exc:
+                    logger.warning(
+                        "Couldn't release duplicate-submission cache state: exception_type=%s",
+                        type(exc).__name__,
+                    )
+            if nonce_reserved:
+                try:
+                    release_submission_nonce(
+                        page=self,
+                        nonce_hash=submission_security.nonce_hash,
+                    )
+                except SecurityStateUnavailable as exc:
+                    logger.warning(
+                        "Couldn't release submission-nonce cache state: exception_type=%s",
+                        type(exc).__name__,
+                    )
+            raise
 
         return submission
 
