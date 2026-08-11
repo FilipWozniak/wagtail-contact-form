@@ -1,0 +1,28 @@
+{% load i18n %}
+
+{% translate "We could not load the security check. Please try again." as turnstile_error_message %}
+{% translate "The security check expired. Please complete it again." as turnstile_expired_message %}
+{% translate "The security check timed out. Please complete it again." as turnstile_timeout_message %}
+{% translate "Please complete the CAPTCHA verification." as turnstile_required_message %}
+
+<div
+    {% if widget.attrs.id %}id="{{ widget.attrs.id }}"{% endif %}
+    class="cf-turnstile"
+    data-turnstile-widget
+    data-sitekey="{{ widget.site_key }}"
+    data-theme="{{ widget.theme }}"
+    data-size="{{ widget.size }}"
+    data-action="{{ widget.action }}"
+    data-response-field-name="{{ widget.response_field_name }}"
+    data-error-message="{{ turnstile_error_message }}"
+    data-expired-message="{{ turnstile_expired_message }}"
+    data-timeout-message="{{ turnstile_timeout_message }}"
+    data-required-message="{{ turnstile_required_message }}"
+></div>
+<p
+    class="invalid-feedback d-block"
+    data-turnstile-status
+    role="alert"
+    aria-live="polite"
+    hidden
+></p>

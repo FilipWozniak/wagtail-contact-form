@@ -1,22 +1,26 @@
 {% extends base_template %}
 
-{% load wagtailcore_tags static %}
+{% load i18n wagtailcore_tags static %}
 
 {% block content %}
-
 <div class="container mt-5 mb-5 text-center">
-
     {% if base_template == "cjkcms/pages/web_page.html" %}
         <div class="pt-4"> </div>
     {% endif %}
-
-    <a href="{{ request.site.root_page.url }}">
-        <button type="button" class="btn btn-primary btn-lg">Back to Home Page</button>
-    </a>
+    {% if request.site.root_page.url %}
+        <a href="{{ request.site.root_page.url }}" class="btn btn-primary btn-lg">
+            {% translate "Back to Home Page" %}
+        </a>
+    {% endif %}
     <div class="row mt-5"></div>
-    {{ self.thank_you_text|richtext }}
+    {% if self.thank_you_text %}
+        {{ self.thank_you_text|richtext }}
+    {% endif %}
     <div class="row mt-5"></div>
-    <img src="{% static 'images/icons/thank-you.svg' %}" alt="Thank You for Your Submission" class="w-50">
+    <img
+        src="{% static 'images/icons/thank-you.svg' %}"
+        alt="{% translate 'Thank You for Your Submission' %}"
+        class="w-50"
+    >
 </div>
-
 {% endblock %}

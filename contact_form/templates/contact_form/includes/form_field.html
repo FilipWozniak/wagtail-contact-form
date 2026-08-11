@@ -1,0 +1,51 @@
+{% load i18n widget_tweaks %}
+
+<div class="form-group mb-3">
+    {% translate field.label as field_placeholder %}
+
+    {% if field.field.widget.input_type == "checkbox" %}
+        <div class="form-check">
+            {% render_field field class+="form-check-input" %}
+            {% if field.id_for_label and field.label %}
+                <label class="form-check-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+            {% endif %}
+        </div>
+    {% elif field.field.widget.input_type == "radio" %}
+        {% if field.label %}
+            <fieldset>
+                <legend class="form-label">{{ field.label }}</legend>
+                {% render_field field %}
+            </fieldset>
+        {% else %}
+            {% render_field field %}
+        {% endif %}
+    {% elif field.field.widget.input_type == "select" %}
+        {% if field.id_for_label and field.label %}
+            <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+        {% endif %}
+        {% render_field field class+="form-select" %}
+    {% else %}
+        {% if field.id_for_label and field.label %}
+            <label class="visually-hidden" for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+        {% endif %}
+        {% render_field field placeholder=field_placeholder class+="form-control" %}
+    {% endif %}
+
+    {% if field.field.help_text %}
+        <small class="form-text text-muted">{{ field.field.help_text }}</small>
+    {% endif %}
+
+    {% if field.errors %}
+        <div class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

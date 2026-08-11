@@ -1,66 +1,104 @@
 {% extends base_template %}
 
-{% load wagtailcore_tags static widget_tweaks %}
+{% load i18n wagtailcore_tags static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'contact_form/css/contact_form.css' %}">
+
 <div id="simple_application_form_app" class="container mt-5 mb-5">
     <div class="row">
-
         {% if base_template == "cjkcms/pages/web_page.html" %}
-        <span class="mt-5"></span>
+            <span class="mt-5"></span>
         {% endif %}
-
-        <h1>{{ page.title }}</h1>
-        <p class="mt-3">
-            {{ self.intro|richtext }}
-        </p>
-        <form action="{% pageurl page %}" method="POST">
+        {% if page.title %}
+            <h1>{{ page.title }}</h1>
+        {% endif %}
+        {% if self.intro %}
+            <div class="mt-3">
+                {{ self.intro|richtext }}
+            </div>
+        {% endif %}
+        <form action="{% pageurl page %}" method="post">
             <div class="progress my-3">
                 <div class="progress-bar" role="progressbar"></div>
             </div>
             {% csrf_token %}
-            <div class="row">
-                <div class="col-12 col-sm-6">
-                    <div class="form-group mb-3">
-                        <!--                    <label for="full_name">Full Name</label>-->
-                        {% render_field form.full_name placeholder=form.full_name.label class="form-control" %}
-                        <small class="form-text text-muted">{{ form.full_name.field.help_text }}</small>
-                    </div>
+            {% if form_security_token and form_honeypot_name %}
+                <input
+                    type="hidden"
+                    name="_contact_form_token"
+                    value="{{ form_security_token }}"
+                >
+                <div class="contact-form-honeypot" aria-hidden="true">
+                    <label for="{{ form_honeypot_name }}">
+                        {% translate "Please Leave Below Field Empty" %}
+                    </label>
+                    <input
+                        id="{{ form_honeypot_name }}"
+                        name="{{ form_honeypot_name }}"
+                        type="text"
+                        value=""
+                        autocomplete="off"
+                        tabindex="-1"
+                    >
                 </div>
-                <div class="col-12 col-sm-6">
-                    <div class="form-group mb-3">
-                        <!--                    <label for="e_mail_address">Email Address</label>-->
-                        {% render_field form.e_mail_address placeholder=form.e_mail_address.label class="form-control" %}
-                        <small class="form-text text-muted">{{ form.e_mail_address.field.help_text }}</small>
-                    </div>
+            {% endif %}
+            {% if security_error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ security_error }}
                 </div>
-            </div>
-            <div class="col">
-                <div class="form-group mb-3">
-                    <!--                    <label for="message">Message</label>-->
-                    {% render_field form.message placeholder=form.message.label class="form-control" %}
-                    <small class="form-text text-muted">{{ form.message.field.help_text }}</small>
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+                    {% endfor %}
                 </div>
-            </div>
-
-            {% comment %}CAPTCHA Section{% endcomment %}
-            <div class="captcha-container my-3">
-                {% if captcha_provider == "turnstile" %}
-                    {% comment %}Cloudflare Turnstile{% endcomment %}
-                    {{ form.wagtailcaptcha }}
-                {% else %}
-                    {% comment %}Google reCAPTCHA (Default){% endcomment %}
-                    {{ form.wagtailcaptcha }}
+            {% endif %}
+            {% for hidden_field in form.hidden_fields %}
+                {% if hidden_field.name != "wagtailcaptcha" %}
+                    {{ hidden_field }}
+                    {% if hidden_field.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in hidden_field.errors %}
+                                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 {% endif %}
+            {% endfor %}
+            <div class="row">
+                {% for field in form.visible_fields %}
+                    {% if field.name != "wagtailcaptcha" %}
+                        <div class="col-12">
+                            {% include "contact_form/includes/form_field.html" with field=field only %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-
+            {% if form.wagtailcaptcha %}
+                <div class="captcha-container my-3">
+                    {{ form.wagtailcaptcha }}
+                    {% if form.wagtailcaptcha.errors %}
+                        <div class="invalid-feedback d-block" role="alert">
+                            {% for error in form.wagtailcaptcha.errors %}
+                                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
             <div class="row mt-5"></div>
             <div class="d-grid gap-2 col-6 mx-auto">
-            <button type="submit" class="btn btn-primary">
-                Submit Form
-            </button>
+                <button type="submit" class="btn btn-primary">
+                    {% translate "Submit Form" %}
+                </button>
             </div>
         </form>
     </div>
 </div>
+{% if captcha_provider == "turnstile" %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
+    <script src="{% static 'contact_form/js/turnstile.js' %}" defer></script>
+{% endif %}
 {% endblock %}
