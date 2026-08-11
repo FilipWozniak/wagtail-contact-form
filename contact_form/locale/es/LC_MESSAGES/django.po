@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wagtail-contact-form\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-11 00:00+0000\n"
+"PO-Revision-Date: 2026-08-11 00:00+0000\n"
+"Last-Translator: GSTHR Team\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Full Name"
+msgstr "Nombre Completo"
+
+msgid "E-Mail Address"
+msgstr "Dirección de Correo Electrónico"
+
+msgid "Email Address"
+msgstr "Dirección de Correo Electrónico"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Submit Form"
+msgstr "Enviar"
+
+msgid "We could not load the security check. Please try again."
+msgstr "No se pudo cargar la comprobación de seguridad. Inténtalo de nuevo."
+
+msgid "The security check expired. Please complete it again."
+msgstr "La comprobación de seguridad caducó. Complétala de nuevo."
+
+msgid "The security check timed out. Please complete it again."
+msgstr "Se agotó el tiempo de la comprobación de seguridad. Complétala de nuevo."
+
+msgid "Please complete the CAPTCHA verification."
+msgstr "Completa la verificación CAPTCHA."
+
+msgid "CAPTCHA verification failed. Please try again."
+msgstr "La verificación CAPTCHA ha fallado. Inténtalo de nuevo."
+
+msgid "The security check is temporarily unavailable. Please try again later."
+msgstr "La comprobación de seguridad no está disponible temporalmente. Inténtalo de nuevo más tarde."
+
+msgid "Leave this field empty"
+msgstr "Deja este campo vacío"
+
+msgid "The form is temporarily unavailable. Please try again later."
+msgstr "El formulario no está disponible temporalmente. Inténtalo de nuevo más tarde."
+
+msgid "You submitted the form too frequently. Please wait and try again."
+msgstr "Has enviado el formulario con demasiada frecuencia. Espera e inténtalo de nuevo."
+
+msgid "We could not verify this form. Please reload the page and try again."
+msgstr "No pudimos verificar este formulario. Recarga la página e inténtalo de nuevo."
+
+msgid "Back to Home Page"
+msgstr "Volver a la página de inicio"
+
+msgid "Thank You for Your Submission"
+msgstr "Gracias por enviar el formulario"
