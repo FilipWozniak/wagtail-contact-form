@@ -29,7 +29,6 @@ from wagtail.models import TranslatableMixin
 
 from contact_form.forms import ContactFormBuilder
 from contact_form.forms import remove_captcha_field
-from contact_form.views import CustomSubmissionsListView
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +109,6 @@ class ContactPage(AbstractEmailForm):
     template: ClassVar[str] = "contact_form/contact_page.html"
     landing_page_template: ClassVar[str] = "contact_form/contact_page_landing.html"
     form_builder: type[ContactFormBuilder] = ContactFormBuilder
-    submissions_list_view_class = CustomSubmissionsListView
     intro: RichTextField = RichTextField(blank=True)
     thank_you_text: RichTextField = RichTextField(
         blank=True,
@@ -188,6 +186,11 @@ class ContactPage(AbstractEmailForm):
             heading="Error Handling",
         ),
     ]
+
+    def get_submissions_list_view_class(self) -> type:
+        from contact_form.views import CustomSubmissionsListView
+
+        return CustomSubmissionsListView
 
     def get_form_class_for_request(self, request: HttpRequest | None = None) -> type:
         fb = self.form_builder(self.form_fields.all(), page=self, request=request)
