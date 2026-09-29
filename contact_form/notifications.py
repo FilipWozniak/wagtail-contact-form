@@ -17,6 +17,7 @@ from contact_form.security import SecurityStateUnavailable
 from contact_form.security import acquire_security_window
 from contact_form.security import get_page_scope_hash
 from contact_form.security import privacy_hash
+from contact_form.utils import get_smtp_response
 from contact_form.utils import is_localhost
 
 if TYPE_CHECKING:
@@ -47,8 +48,11 @@ def _get_site_phrase() -> str:
 
 
 def get_technical_from_email() -> str | None:
+    server_email: str | None = (
+        settings.SERVER_EMAIL if settings.is_overridden("SERVER_EMAIL") else None
+    )
     return (
-        getattr(settings, "SERVER_EMAIL", None)
+        server_email
         or getattr(settings, "WAGTAILADMIN_NOTIFICATION_FROM_EMAIL", None)
         or getattr(settings, "DEFAULT_FROM_EMAIL", None)
     )
@@ -248,10 +252,14 @@ def notify_captcha_error(
                     stable_error_key,
                 )
         except Exception as exc:
+            smtp_code, smtp_error = get_smtp_response(exc)
             logger.error(
-                "Failed to Send CAPTCHA Technical Notification: error_key=%s exception_type=%s",
+                "Failed to Send CAPTCHA Technical Notification: error_key=%s exception_type=%s "
+                "smtp_code=%s smtp_error=%s",
                 stable_error_key,
                 type(exc).__name__,
+                smtp_code,
+                smtp_error,
             )
     else:
         logger.warning(

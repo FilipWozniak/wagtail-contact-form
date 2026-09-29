@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import logging
 import re
+from email.utils import parseaddr
 from typing import TYPE_CHECKING
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
@@ -24,6 +29,8 @@ RECAPTCHA_TEST_SECRET_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 # Cloudflare Turnstile (Test Keys) - https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA"
 TURNSTILE_TEST_SECRET_KEY = "1x0000000000000000000000000000000AA"
+
+SMTP_ERROR_MAX_LENGTH: int = 200
 
 
 def is_localhost(request: HttpRequest | None = None, host: str | None = None) -> bool:
@@ -74,3 +81,33 @@ def get_captcha_keys_for_environment(
             return get_recaptcha_test_keys()
 
     return configured_keys or {"site_key": "", "secret_key": ""}
+
+
+def get_smtp_response(exc: BaseException) -> tuple[int | None, str]:
+    code: object = getattr(exc, "smtp_code", None)
+    error: object = getattr(exc, "smtp_error", b"")
+    text: str = error.decode(errors="replace") if isinstance(error, bytes) else str(error or "")
+    return code if isinstance(code, int) else None, " ".join(text.split())[:SMTP_ERROR_MAX_LENGTH]
+
+
+def get_fallback_from_email() -> str | None:
+    for setting_name in ("WAGTAILADMIN_NOTIFICATION_FROM_EMAIL", "DEFAULT_FROM_EMAIL"):
+        if not settings.is_overridden(setting_name):
+            continue
+        sender: str | None = getattr(settings, setting_name, None)
+        if not sender:
+            continue
+        try:
+            validate_email(parseaddr(sender)[1])
+        except ValidationError:
+            return None
+        return sender
+    return None
+
+
+def normalize_email_address(sender: str) -> str:
+    address: str = parseaddr(sender)[1]
+    local_part, separator, domain = address.rpartition("@")
+    if not separator:
+        return address.casefold()
+    return f"{local_part}@{domain.encode('idna').decode('ascii')}".casefold()

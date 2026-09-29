@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import logging
+from email.message import Message
+from smtplib import SMTPSenderRefused
 from typing import Any
 from typing import ClassVar
 
 import wagtail
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.core.mail import get_connection
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db import transaction
@@ -29,6 +33,9 @@ from wagtail.models import TranslatableMixin
 
 from contact_form.forms import ContactFormBuilder
 from contact_form.forms import remove_captcha_field
+from contact_form.utils import get_fallback_from_email
+from contact_form.utils import get_smtp_response
+from contact_form.utils import normalize_email_address
 
 logger = logging.getLogger(__name__)
 
@@ -331,9 +338,12 @@ class ContactPage(AbstractEmailForm):
                 form_submission = None
             except ContactFormEmailError as exc:
                 cause = exc.__cause__ or exc
+                smtp_code, smtp_error = get_smtp_response(cause)
                 logger.error(
-                    "Error with Sending an Email exception_type=%s",
+                    "Error with Sending an Email exception_type=%s smtp_code=%s smtp_error=%s",
                     type(cause).__name__,
+                    smtp_code,
+                    smtp_error,
                 )
                 response = self._render_contact_form(
                     request,
@@ -354,6 +364,41 @@ class ContactPage(AbstractEmailForm):
             )
 
         return self._protect_contact_response(self._render_contact_form(request, form, *args, **kwargs))
+
+    def send_mail(self, form: Any) -> None:
+        addresses: list[str] = [address.strip() for address in self.to_address.split(",")]
+        body: str = self.render_email(form)
+        sender: str = self.from_address or getattr(
+            settings, "WAGTAILADMIN_NOTIFICATION_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL
+        )
+        mail: EmailMultiAlternatives = EmailMultiAlternatives(
+            self.subject,
+            body,
+            sender,
+            addresses,
+            connection=get_connection(username=None, password=None, fail_silently=None),
+            headers={"Auto-Submitted": "auto-generated"},
+        )
+        message: Message = mail.message()
+        for header in ("Date", "Message-ID"):
+            mail.extra_headers[header] = str(message[header])
+
+        try:
+            mail.send()
+        except SMTPSenderRefused as exc:
+            refused_address: str = normalize_email_address(exc.sender)
+            smtp_code, smtp_error = get_smtp_response(exc)
+            logger.warning(
+                "Contact Email Sender Refused: sender_domain=%s smtp_code=%s smtp_error=%s",
+                refused_address.rpartition("@")[2],
+                smtp_code,
+                smtp_error,
+            )
+            fallback: str | None = get_fallback_from_email()
+            if not fallback or normalize_email_address(fallback) == refused_address:
+                raise
+            mail.from_email = fallback
+            mail.send()
 
     def process_form_submission(self, form: Any) -> Any:
         from contact_form.security import DuplicateContactSubmission
