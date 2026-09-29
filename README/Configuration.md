@@ -19,14 +19,14 @@
 
 3. Create a page of type `Contact Page` and add all the required fields listed below.
 
-   - `Full Name`
-   - `E-Mail Address`
-   - `Message`
-   
+    - `Full Name`
+    - `E-Mail Address`
+    - `Message`
+
    > [!WARNING]
    > As you can see from the code snippet below, form fields are not rendered dynamically, which means you need to name
    labels identically as mentioned above — `Full Name`, `E-Mail Address`, `Message`.
-   
+
    ```python
    <div class="col-12 col-sm-6">
      <div class="form-group mb-3">
@@ -36,7 +36,10 @@
      </div>
    </div>
    ```
-   
+
    > [!NOTE]
    > Please remember that if you have saved a form initially with different labels, you must delete the form page
    instance completely and create it again with the correct values.
+
+4. If your website sends a `Content-Security-Policy` header, allow the `CAPTCHA` provider selected in the `Contact Page`
+   settings. Otherwise the form shows `We could not load the security check. Please try again.` and the browser blocks the script.
