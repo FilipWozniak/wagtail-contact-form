@@ -5,10 +5,14 @@
 A very basic contact form with `CAPTCHA` module that protects you against spam.
 
 > [!NOTE]
-> The project supports `Django 5` and `Wagtail 6`.
+> The project supports `Django 6` and `Wagtail 8`.
 
 > [!NOTE]
 > The project supports `Google reCAPTCHA` and `Cloudflare Turnstile`.
+
+> [!NOTE]
+> If your website uses a `Content-Security-Policy`, allow your `CAPTCHA` provider as described in
+> [Configuration](README/Configuration.md).
 
 <br>
 <p align="center">
